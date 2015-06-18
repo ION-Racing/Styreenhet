@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>GPIO</TargetName>
+      <TargetName>Pedalmodul</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
@@ -125,7 +125,7 @@
             <Oh166RecLen>16</Oh166RecLen>
           </OPTHX>
           <Simulator>
-            <UseSimulator>1</UseSimulator>
+            <UseSimulator>0</UseSimulator>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -137,7 +137,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Simulator>
           <Target>
-            <UseTarget>0</UseTarget>
+            <UseTarget>1</UseTarget>
             <LoadApplicationAtStartup>1</LoadApplicationAtStartup>
             <RunToMain>1</RunToMain>
             <RestoreBreakpoints>1</RestoreBreakpoints>
@@ -149,7 +149,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>8</TargetSelection>
+          <TargetSelection>11</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -361,7 +361,7 @@
             <wLevel>2</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
-            <uC99>0</uC99>
+            <uC99>1</uC99>
             <useXO>0</useXO>
             <v6Lang>0</v6Lang>
             <v6LangP>0</v6LangP>
@@ -410,17 +410,24 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Main Source</GroupName>
+          <GroupName>Main</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\main.c</FilePath>
+              <FilePath>.\main.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>Include</GroupName>
+          <GroupName>Periferi</GroupName>
+          <Files>
+            <File>
+              <FileName>CAN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\CAN.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>STM32F4xx_StdPeriph_Driver</GroupName>
@@ -598,13 +605,13 @@
       <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="4.1.0" condition="CMSIS Core">
         <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="4.3.0"/>
         <targetInfos>
-          <targetInfo name="GPIO"/>
+          <targetInfo name="Pedalmodul"/>
         </targetInfos>
       </component>
       <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="2.1.0" condition="STM32F4 CMSIS">
         <package name="STM32F4xx_DFP" schemaVersion="1.2" url="http://www.keil.com/pack" vendor="Keil" version="2.2.0"/>
         <targetInfos>
-          <targetInfo name="GPIO"/>
+          <targetInfo name="Pedalmodul"/>
         </targetInfos>
       </component>
     </components>
@@ -614,7 +621,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="2.1.0" condition="STM32F4 CMSIS"/>
         <package name="STM32F4xx_DFP" schemaVersion="1.2" url="http://www.keil.com/pack" vendor="Keil" version="2.2.0"/>
         <targetInfos>
-          <targetInfo name="GPIO"/>
+          <targetInfo name="Pedalmodul"/>
         </targetInfos>
       </file>
       <file attr="config" category="source" name="MDK\Device\Source\ARM\system_stm32f4xx.c" version="2.1.0">
@@ -622,7 +629,7 @@
         <component Cclass="Device" Cgroup="Startup" Cvendor="Keil" Cversion="2.1.0" condition="STM32F4 CMSIS"/>
         <package name="STM32F4xx_DFP" schemaVersion="1.2" url="http://www.keil.com/pack" vendor="Keil" version="2.2.0"/>
         <targetInfos>
-          <targetInfo name="GPIO"/>
+          <targetInfo name="Pedalmodul"/>
         </targetInfos>
       </file>
     </files>

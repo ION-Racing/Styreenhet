@@ -36,11 +36,11 @@ void InitCAN(void){
 	CAN_InitStruct.CAN_NART = ENABLE; // No automatic retransmission
 	
 	CAN_InitStruct.CAN_Mode = CAN_Mode_Normal;
-	CAN_InitStruct.CAN_SJW	= CAN_SJW_3tq;
+	/*CAN_InitStruct.CAN_SJW	= CAN_SJW_3tq;
 	CAN_InitStruct.CAN_BS1	= CAN_BS1_4tq;
-	CAN_InitStruct.CAN_BS2	= CAN_BS2_2tq;
+	CAN_InitStruct.CAN_BS2	= CAN_BS2_2tq;*/
 	CAN_InitStruct.CAN_Prescaler = (42000000 / 7) / 500000;
-	CAN_Init(CAN1, &CAN_InitStruct);
+	
 	
 	// Configure interrupts
 	CAN_ITConfig(CAN1, (CAN_IER_FMPIE0 |           /* enable FIFO 0 msg pending IRQ    */
@@ -48,6 +48,14 @@ void InitCAN(void){
 	
 	uint8_t InitStatus = CAN_Init(CAN1, &CAN_InitStruct);
 
+//	uint32_t brp  = (42000000 / 7) / 500000;         /* baudrate is set to 500k bit/s    */
+//                                                                          
+//  /* set BTR register so that sample point is at about 71% bit time from bit start */
+//  /* TSEG1 = 4, TSEG2 = 2, SJW = 3 => 1 CAN bit = 7 TQ, sample at 71%      */
+//  CAN1->BTR &= ~(((        0x03) << 24) | ((        0x07) << 20) | ((        0x0F) << 16) | (          0x3FF));
+//  CAN1->BTR |=  ((((3-1) & 0x03) << 24) | (((2-1) & 0x07) << 20) | (((4-1) & 0x0F) << 16) | ((brp-1) & 0x3FF));
+//	
+//	CAN1->MCR &= ~CAN_MCR_INRQ; 
 
 	// Setup filter
 	CAN_FilterInitTypeDef CAN_FilterInitStruct;
@@ -57,8 +65,12 @@ void InitCAN(void){
 	CAN_FilterInit(&CAN_FilterInitStruct);
 	
 	// Start CAN
-	CAN_OperatingModeRequest(CAN1, CAN_OperatingMode_Normal);
-
+	if(CAN_OperatingModeRequest(CAN1, CAN_OperatingMode_Normal) != CAN_ModeStatus_Success){
+		
+		GPIOC->ODR = (GPIO_Pin_6 | GPIO_Pin_7 |GPIO_Pin_8);
+		
+		while(1);
+	}
 }
 
 void CAN1_TX_IRQHandler (void) {
