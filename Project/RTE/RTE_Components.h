@@ -3,8 +3,8 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'Pedalmodul' 
- * Target:  'Pedalmodul' 
+ * Project: 'GPIO' 
+ * Target:  'GPIO' 
  */
 
 #ifndef RTE_COMPONENTS_H

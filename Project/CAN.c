@@ -1,105 +1,120 @@
 #include "stm32f4xx_CAN.h"
 #include "stm32f4xx_gpio.h"
+#include "Periph_header.h"
+
+/* Defines */
+#define CAN_RX_PIN GPIO_Pin_11
+#define CAN_TX_PIN GPIO_Pin_12
+
+/* PRIVATE functions */
+CAN_InitTypeDef        CAN_InitStructure;
+CAN_FilterInitTypeDef  CAN_FilterInitStructure;
+CanTxMsg TxMessage; //Used for testing
 
 
-void InitCAN(void){
+extern CanRxMsg msgRx;
 
-	/* Setup CAN GPIO-pins
-	
-	PA11: CAN RX
-	PA12: CAN TX
-	*/
-	
+
+/**
+  * @brief  Configures the CAN.
+  * @param  None
+  * @retval None
+  */
+void CAN_Config(void)
+{
+  GPIO_InitTypeDef  GPIO_InitStructure;
+  
+  /* CAN GPIOs configuration **************************************************/
+
+  /* Enable GPIO clock */
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
-	
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_CAN1); 
-	GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_CAN1); 
-	
-	// Enable interrupts
-	NVIC_EnableIRQ(CAN1_TX_IRQn);
-    NVIC_EnableIRQ(CAN1_RX0_IRQn);
+  /* Connect CAN pins to AF9 */
+  GPIO_PinAFConfig(GPIOA, GPIO_PinSource11, GPIO_AF_CAN1);
+  GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_CAN1);
+  
+  /* Configure CAN RX and TX pins */
+  GPIO_InitStructure.GPIO_Pin = CAN_RX_PIN | CAN_TX_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;
+  GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	// Setup CAN peripheral module
-	RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+  /* CAN configuration ********************************************************/  
+  /* Enable CAN clock */
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
+  
+  /* CAN register init */
+  CAN_DeInit(CAN1);
 
-	CAN_InitTypeDef CAN_InitStruct;
-	CAN_StructInit(&CAN_InitStruct);
-	
-	CAN_InitStruct.CAN_NART = ENABLE; // No automatic retransmission
-	
-	CAN_InitStruct.CAN_Mode = CAN_Mode_Normal;
-	/*CAN_InitStruct.CAN_SJW	= CAN_SJW_3tq;
-	CAN_InitStruct.CAN_BS1	= CAN_BS1_4tq;
-	CAN_InitStruct.CAN_BS2	= CAN_BS2_2tq;*/
-	CAN_InitStruct.CAN_Prescaler = (42000000 / 7) / 500000;
-	
-	
-	// Configure interrupts
-	CAN_ITConfig(CAN1, (CAN_IER_FMPIE0 |           /* enable FIFO 0 msg pending IRQ    */
-						CAN_IER_TMEIE    ), ENABLE);       /* enable Transmit mbx empty IRQ    */
-	
-	uint8_t InitStatus = CAN_Init(CAN1, &CAN_InitStruct);
+  /* CAN cell init */
+  CAN_InitStructure.CAN_TTCM = DISABLE;
+  CAN_InitStructure.CAN_ABOM = DISABLE;
+  CAN_InitStructure.CAN_AWUM = DISABLE;
+  CAN_InitStructure.CAN_NART = DISABLE;
+  CAN_InitStructure.CAN_RFLM = DISABLE;
+  CAN_InitStructure.CAN_TXFP = DISABLE;
+  CAN_InitStructure.CAN_Mode = CAN_Mode_Normal;
+  CAN_InitStructure.CAN_SJW = CAN_SJW_3tq;
+    
+  /* CAN Baudrate = 500 KBps (CAN clocked at 42 MHz) */
+  CAN_InitStructure.CAN_BS1 = CAN_BS1_4tq;
+  CAN_InitStructure.CAN_BS2 = CAN_BS2_2tq;
+  CAN_InitStructure.CAN_Prescaler = (42000000 / 7) / 500000;
+  CAN_Init(CAN1, &CAN_InitStructure);
 
-//	uint32_t brp  = (42000000 / 7) / 500000;         /* baudrate is set to 500k bit/s    */
-//                                                                          
-//  /* set BTR register so that sample point is at about 71% bit time from bit start */
-//  /* TSEG1 = 4, TSEG2 = 2, SJW = 3 => 1 CAN bit = 7 TQ, sample at 71%      */
-//  CAN1->BTR &= ~(((        0x03) << 24) | ((        0x07) << 20) | ((        0x0F) << 16) | (          0x3FF));
-//  CAN1->BTR |=  ((((3-1) & 0x03) << 24) | (((2-1) & 0x07) << 20) | (((4-1) & 0x0F) << 16) | ((brp-1) & 0x3FF));
-//	
-//	CAN1->MCR &= ~CAN_MCR_INRQ; 
-
-	// Setup filter
-	CAN_FilterInitTypeDef CAN_FilterInitStruct;
-	CAN_FilterInitStruct.CAN_FilterNumber = 1;
-	CAN_FilterInitStruct.CAN_FilterMode = CAN_FilterMode_IdList;
-	CAN_FilterInitStruct.CAN_FilterActivation = DISABLE;
-	CAN_FilterInit(&CAN_FilterInitStruct);
-	
-	// Start CAN
-	if(CAN_OperatingModeRequest(CAN1, CAN_OperatingMode_Normal) != CAN_ModeStatus_Success){
-		
-		GPIOC->ODR = (GPIO_Pin_6 | GPIO_Pin_7 |GPIO_Pin_8);
-		
-		while(1);
-	}
+  /* CAN filter init */
+  CAN_FilterInitStructure.CAN_FilterNumber = 0;
+  CAN_FilterInitStructure.CAN_FilterMode = CAN_FilterMode_IdMask;
+  CAN_FilterInitStructure.CAN_FilterScale = CAN_FilterScale_32bit;
+  CAN_FilterInitStructure.CAN_FilterIdHigh = 0x0000;
+  CAN_FilterInitStructure.CAN_FilterIdLow = 0x0000;
+  CAN_FilterInitStructure.CAN_FilterMaskIdHigh = 0x0000;
+  CAN_FilterInitStructure.CAN_FilterMaskIdLow = 0x0000;
+  CAN_FilterInitStructure.CAN_FilterFIFOAssignment = 0;
+  CAN_FilterInitStructure.CAN_FilterActivation = ENABLE;
+  CAN_FilterInit(&CAN_FilterInitStructure);
+  
+  /* Transmit Structure preparation */
+  TxMessage.StdId = 0x321;
+  TxMessage.ExtId = 0x01;
+  TxMessage.RTR = CAN_RTR_DATA;
+  TxMessage.IDE = CAN_ID_STD;
+  TxMessage.DLC = 1;
+  
+  /* Enable FIFO 0 message pending Interrupt */
+  CAN_ITConfig(CAN1, CAN_IT_FMP0, ENABLE);
 }
 
-void CAN1_TX_IRQHandler (void) {
+/**
+  * @brief  Initializes the Rx Message.
+  * @param  RxMessage: pointer to the message to initialize
+  * @retval None
+  */
+void Init_RxMes(CanRxMsg *RxMessage)
+{
+  uint8_t ubCounter = 0;
 
-//  if (CAN1->TSR & CAN_TSR_RQCP0) {          /* request completed mbx 0        */
-//    CAN1->TSR |= CAN_TSR_RQCP0;             /* reset request complete mbx 0   */
-//    CAN1->IER &= ~CAN_IER_TMEIE;            /* disable  TME interrupt         */
-
-//	  
-//	  GPIOC->ODR ^= GPIO_Pin_7;
-//	  
-//	  //CAN_TxRdy[0] = 1; 
-//  }
-	
-	if(CAN_GetITStatus(CAN1, CAN_IT_TME)){
-		CAN_ClearITPendingBit(CAN1, CAN_IT_TME);
-		
-		GPIOC->ODR ^= GPIO_Pin_8;
-	}
+  RxMessage->StdId = 0x00;
+  RxMessage->ExtId = 0x00;
+  RxMessage->IDE = CAN_ID_STD;
+  RxMessage->DLC = 0;
+  RxMessage->FMI = 0;
+  for (ubCounter = 0; ubCounter < 8; ubCounter++)
+  {
+    RxMessage->Data[ubCounter] = 0x00;
+  }
 }
 
 void CAN1_RX0_IRQHandler (void) {
 
   if (CAN1->RF0R & CAN_RF0R_FMP0) {			    /* message pending ?              */
-	 // CAN_rdMsg (1, &CAN_RxMsg[0]);           /* read the message               */
 
-		//CAN_RxRdy[0] = 1;                       /*  set receive flag              */
-	
-	  GPIOC->ODR ^= GPIO_Pin_8;
+		
+		/* Temp action for testing CAN */
+		CAN_Receive(CAN1,CAN_FIFO0,&msgRx);
+		
+		if(msgRx.StdId == 0x1) GPIOB->ODR ^= GPIO_Pin_14;
+		
   }
-	
 }
