@@ -1,0 +1,1 @@
+void InitNVIC(void);
