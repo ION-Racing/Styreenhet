@@ -8,6 +8,9 @@
 static void Delay(__IO uint32_t);
 CanTxMsg msgTx;	  
 CanRxMsg msgRx;
+
+// Data-variabler
+uint16_t pedalSensors[2];
 			
 int main(void)
 {
@@ -35,16 +38,14 @@ int main(void)
 	/* Main code */
 	while(1)
 	{
-		Delay(0xFF);
-		/*
-		if(CAN_GetITStatus(CAN1,CAN_IT_FMP0) == SET){
 		
-		CAN_Receive(CAN1,CAN_FIFO0,&msgRx);
-		if(msgRx.StdId == 0x1){
-			GPIOC->ODR |= GPIO_Pin_6;
+		if(pedalSensors[0] > 0xF){
+			GPIOB->ODR |= GPIO_Pin_14;				
 		}
-	}
-		*/
+		else {
+			GPIOB->ODR &= ~GPIO_Pin_14;
+		}
+		
 	}
 }
 

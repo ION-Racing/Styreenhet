@@ -1,6 +1,7 @@
 #include "stm32f4xx_CAN.h"
 #include "stm32f4xx_gpio.h"
-#include "Periph_header.h"
+#include "CAN.h"
+#include "ION_CAN.h"
 
 #define CAN_RX_PIN GPIO_Pin_11
 #define CAN_TX_PIN GPIO_Pin_12
@@ -10,6 +11,7 @@ CAN_InitTypeDef        CAN_InitStructure;
 CAN_FilterInitTypeDef  CAN_FilterInitStructure;
 CanTxMsg TxMessage; //Used for testing
 
+extern uint16_t pedalSensors[2];
 
 extern CanRxMsg msgRx;
 
@@ -122,7 +124,10 @@ void CAN1_RX0_IRQHandler (void)
 		/* Temp action for testing CAN */
 		CAN_Receive(CAN1,CAN_FIFO0,&msgRx);
 
-		if(msgRx.StdId == 0x1) GPIOB->ODR ^= GPIO_Pin_14;
+		
+		if(msgRx.StdId == CAN_MSG_PEDAL_VALUES){
+			pedalSensors[0] = msgRx.Data[2];
+		}
 
 	}
 }

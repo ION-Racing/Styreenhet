@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>Pedalmodul</TargetName>
+      <TargetName>Styreenhet</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
