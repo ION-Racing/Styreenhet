@@ -7,14 +7,14 @@
 
   <Targets>
     <Target>
-      <TargetName>GPIO</TargetName>
+      <TargetName>Pedalmodul</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <TargetOption>
         <TargetCommonOption>
           <Device>STM32F407VGTx</Device>
           <Vendor>STMicroelectronics</Vendor>
-          <PackID>Keil.STM32F4xx_DFP.2.4.0</PackID>
+          <PackID>Keil.STM32F4xx_DFP.2.5.0</PackID>
           <PackURL>http://www.keil.com/pack</PackURL>
           <Cpu>IROM(0x08000000,0x100000) IRAM(0x20000000,0x20000) IRAM2(0x10000000,0x10000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
@@ -84,6 +84,8 @@
             <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
+            <nStopA1X>0</nStopA1X>
+            <nStopA2X>0</nStopA2X>
           </AfterMake>
           <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
@@ -359,8 +361,10 @@
             <wLevel>2</wLevel>
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
-            <uC99>0</uC99>
+            <uC99>1</uC99>
             <useXO>0</useXO>
+            <v6Lang>0</v6Lang>
+            <v6LangP>0</v6LangP>
             <VariousControls>
               <MiscControls></MiscControls>
               <Define>USE_STDPERIPH_DRIVER,STM32F4XX,HSE_VALUE=8000000</Define>
@@ -411,12 +415,14 @@
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\src\main.c</FilePath>
+              <FilePath>.\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>ION_CAN.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\ION_CAN.h</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>Include</GroupName>
         </Group>
         <Group>
           <GroupName>STM32F4xx_StdPeriph_Driver</GroupName>
@@ -610,6 +616,16 @@
               <FileName>GPIO.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\GPIO.c</FilePath>
+            </File>
+            <File>
+              <FileName>MCO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MCO.c</FilePath>
+            </File>
+            <File>
+              <FileName>ADC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ADC.c</FilePath>
             </File>
           </Files>
         </Group>
