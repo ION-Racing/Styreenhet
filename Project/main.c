@@ -3,6 +3,7 @@
 #include "GPIO.h"
 #include "NVIC.h"
 #include "CAN.h"
+#include "ADC.h"
 
 static void Delay(__IO uint32_t);
 CanTxMsg msgTx;	  
@@ -22,6 +23,7 @@ int main(void)
 	// Initialize peripheral modules
 	InitGPIO();
 	InitNVIC();
+	InitADC();
 	InitCAN();
 //	MCO_Config(); // Clock output
 	
@@ -41,7 +43,8 @@ int main(void)
 		if(msgRx.StdId == 0x1){
 			GPIOC->ODR |= GPIO_Pin_6;
 		}
-	}*/
+	}
+		*/
 	}
 }
 
