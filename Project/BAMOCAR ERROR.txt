@@ -1,0 +1,25 @@
+Display at
+the
+BAMOCAR
+Error message
+on the NDrive
+Meaning IDaddress
+Ox8f
+
+0 BADPARAS 				Parameter error 				bit  	0
+1 POWER FAULT 			Output stage error 				bit 	1
+2 RFE FAULT 			Error in the safety circuit 	bit 	2
+3 BUS TIMEOUT 			Transfer error BUS 				bit 	3
+4 FEEDBACK 				Incorrect/faulty encoder signal bit 	4
+5 POWERVOLTAGE 			No power supply voltage 		bit 	5
+6 MOTORTEMP 			Motor temperature too high 		bit 	6
+7 DEVICETEMP 			Device temperature too high 	bit 	7
+8 OVERVOLTAGE 			Over voltage >1.8 x UN 			bit 	8
+9 I_PEAK 				Overcurrent 300% 				bit 	9
+A RACEAWAY 				Racing (without command value,
+						incorrect polarity) 			bit 	10
+B USER 					User’s error choice 			bit 	11
+C RESERVE 												bit 	12
+D RESERVE 												bit 	13
+E CPU-ERROR 			Software error 					bit 	14
+F BALLAST 				Ballast circuitry overload 		bit 	15

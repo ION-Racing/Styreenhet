@@ -1,5 +1,12 @@
 #include "stm32f4xx.h"
-#include "tv.h"
+
+
+#ifndef __MOTORCONTROLLER_H
+#define __MOTORCONTROLLER_H
+
+#define GRADIENT_AS 0.0526		// Stigningstallet til antispinnfunksjonen.
+#define MAX_SPIN 115 					// Will allow 15 percent spin
+#define SPIN 1
 
 const uint16_t simple_ackerman[101][38] = {
 {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -105,15 +112,12 @@ const uint16_t simple_ackerman[101][38] = {
 {32767,32481,32195,31908,31621,31334,31045,30755,30464,30172,29878,29582,29285,28985,28682,28377,28069,27758,27444,27126,26804,26478,26148,25813,25473,25127,24776,24419,24056,23685,23308,22923,22529,22127,21716,21295,20864,20421}
 };
 
-uint16_t innerTorque;
 
-void torqueVector(uint16_t velocity, uint16_t steering, uint16_t torque) 
-{
-	if (velocity > 5)
-	{
-		if (steering > 0x7FFF>>1)	innerTorque = simple_ackerman[velocity][(int)((steering/885)+0.5)]; //Steering right
-		else innerTorque = simple_ackerman[velocity][(int)((steering/442)+0.5)];	 //steering left
-		
-		if (innerTorque > torque) innerTorque=torque;
-	}
-}
+uint16_t torqueR, torqueL, newTorque;
+
+double forhold;
+
+uint16_t tractionControl(uint16_t torque, uint16_t front, uint16_t rear);
+void torqueVector(uint16_t velocity, uint16_t steering, uint16_t torque) ;
+
+#endif

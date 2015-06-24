@@ -2,25 +2,22 @@
 #include "CAN.h"
 
 //#define BUFFERSIZE 448  // Setter opp st¯rrelsen pÂ ADC array.
-#define BUFFERSIZE  (4+4)*7
+#define BUFFERSIZE  (4)*4
 
 // ADC-values
 __IO uint16_t ADCDualConvertedValues[BUFFERSIZE];
 
-uint16_t rawSensorValues[7];
+uint16_t rawSensorValues[4];
 
 void InitADC(void){
 	
 	/*
-		Sensor			Pin		Pin function	 Sensor function
+		Sensor					Pin		Pin function	 Sensor function
 		--------------------------------------------------------
-		Styresnekke		PA1		ADC123_IN1		 Steering
-		Pedalsensor 1	PA2		ADC123_IN2		 Throttle 1
-		Pedalsensor 2	PA3		ADC123_IN3		~Throttle 1
-		Pedalsensor 3	PA4		ADC12_IN4		 Throttle 2
-		Pedalsensor 4	PA5		ADC12_IN5		~Throttle 2
-		Pedalsensor 5	PA6		ADC12_IN6		 Brake
-		Pedalsensor 6	PA7		ADC12_IN7		~Brake
+		Dempesensor 1		PA3		
+		Dempesensor 2		PA4	
+		Dempesensor 3		PA5	
+		Dempesensor 4		PA6	
 	
 		Two ADC-modules are used, ADC1 for channel 2, 3, 4 & 1, and ADC2 for channel 5, 6, 7.
 		After conversion the values are transferred to ADCDualConvertedValues via DMA in the following order (Dual ADC Mode, DMA Mode 1):
@@ -31,7 +28,7 @@ void InitADC(void){
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 	
 	GPIO_InitTypeDef GPIO_InitStructure;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1 | GPIO_Pin_2 | GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7 ;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5 | GPIO_Pin_6;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
@@ -107,23 +104,17 @@ void InitADC(void){
 	ADC_InitStructure.ADC_ExternalTrigConvEdge 	= ADC_ExternalTrigConvEdge_Rising;
 	ADC_InitStructure.ADC_ExternalTrigConv 		= ADC_ExternalTrigConv_T2_TRGO; // Trigger conversion with TIM2
 	ADC_InitStructure.ADC_DataAlign 			= ADC_DataAlign_Right;
-	ADC_InitStructure.ADC_NbrOfConversion 		= 4;
+	ADC_InitStructure.ADC_NbrOfConversion 		= 2;
 	ADC_Init(ADC1, &ADC_InitStructure);
-	
-	ADC_InitStructure.ADC_NbrOfConversion 		= 4;
 	ADC_Init(ADC2, &ADC_InitStructure); // Mirror on ADC2
 
 	/* ADC1 regular channel 11 configuration */
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 1, ADC_SampleTime_480Cycles); // PA2
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 2, ADC_SampleTime_480Cycles); // PA3
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 3, ADC_SampleTime_480Cycles); // PA4
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 4, ADC_SampleTime_480Cycles); // PA1
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 1, ADC_SampleTime_480Cycles); // PA3
+	ADC_RegularChannelConfig(ADC2, ADC_Channel_5, 2, ADC_SampleTime_480Cycles); // PA5
 	
 	/* ADC2 regular channel 12 configuration */
-	ADC_RegularChannelConfig(ADC2, ADC_Channel_5, 1, ADC_SampleTime_480Cycles); // PA5
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 1, ADC_SampleTime_480Cycles); // PA4
 	ADC_RegularChannelConfig(ADC2, ADC_Channel_6, 2, ADC_SampleTime_480Cycles); // PA6
-	ADC_RegularChannelConfig(ADC2, ADC_Channel_7, 3, ADC_SampleTime_480Cycles); // PA7
-	ADC_RegularChannelConfig(ADC2, ADC_Channel_8, 4, ADC_SampleTime_480Cycles); // PB0 (for equal lengths on both channels)
 
 	/* Enable DMA request after last transfer (Multi-ADC mode)  */
 	ADC_MultiModeDMARequestAfterLastTransferCmd(ENABLE);
@@ -141,7 +132,7 @@ void InitADC(void){
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 	
-	TIM_TimeBaseStructure.TIM_Period = (84000000 / 1280) - 1; // 2 KHz, from 84 MHz TIM5CLK (ie APB1 = HCLK/4, TIM5CLK = HCLK/2)
+	TIM_TimeBaseStructure.TIM_Period = (84000000 / 8000) - 1; // 8 kHz, from 84 MHz TIM5CLK (ie APB1 = HCLK/4, TIM5CLK = HCLK/2)
 	TIM_TimeBaseStructure.TIM_Prescaler = 0;
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
@@ -157,17 +148,19 @@ uint8_t test = 0;
 /* DMA Interrupt */
 void DMA2_Stream0_IRQHandler(void)
 { 
-	// DMA Stream Transfer Complete
+	// DMA Stream Transfer Complete Every 2kHz
 	if(DMA_GetITStatus(DMA2_Stream0, DMA_IT_TCIF0)){
 		DMA_ClearITPendingBit(DMA2_Stream0, DMA_IT_TCIF0);
 		
-		rawSensorValues[0] = ADCDualConvertedValues[6];
-		rawSensorValues[1] = ADCDualConvertedValues[0];
-		rawSensorValues[2] = ADCDualConvertedValues[2];
-		rawSensorValues[3] = ADCDualConvertedValues[4];
-		rawSensorValues[4] = ADCDualConvertedValues[1];
-		rawSensorValues[5] = ADCDualConvertedValues[3];
-		rawSensorValues[6] = ADCDualConvertedValues[5];
+		for (uint8_t i = 0; i < 4; i++)
+		{
+			for (uint8_t j = i; j < 16; j+=4)
+			{
+				rawSensorValues[i] += ADCDualConvertedValues[j];
+			}
+			rawSensorValues[i] = rawSensorValues[i]>>1;
+		}
+
 		
 		
 		uint8_t i;
@@ -175,9 +168,7 @@ void DMA2_Stream0_IRQHandler(void)
 		for(i = 0; i<7; i++){
 			data[i] = (uint8_t)(rawSensorValues[i] >> 7);
 		}
-		
-		CANTx(0x100, 7, data);
-		
+				
 		//movingAverage(ADCDualConvertedValues);
 	}
 }

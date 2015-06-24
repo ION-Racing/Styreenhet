@@ -2,9 +2,9 @@
 #include "stm32f4xx_gpio.h"
 #include "CAN.h"
 #include "ION_CAN.h"
+#include "Bamocar.h"
 
-#define CAN_RX_PIN GPIO_Pin_11
-#define CAN_TX_PIN GPIO_Pin_12
+
 
 /* PRIVATE functions */
 CAN_InitTypeDef        CAN_InitStructure;
@@ -128,6 +128,32 @@ void CAN1_RX0_IRQHandler (void)
 		if(msgRx.StdId == CAN_MSG_PEDAL_VALUES){
 			pedalSensors[0] = msgRx.Data[2];
 		}
+		
+		/* 		Code to read error messages from Motorcontrollers 		*/
+		if(msgRx.StdId == MOTORCONTROLLER_RIGHT_RX_STDID && msgRx.Data[0] == 0x8F)
+		{
+			uint16_t error = msgRx.Data[1] + (msgRx.Data[2]<<8);
+			readMotorControllerErrorR(error);
+		}		
+		
+		if(msgRx.StdId == MOTORCONTROLLER_LEFT_RX_STDID && msgRx.Data[0] == 0x8F)
+		{
+			uint16_t error = msgRx.Data[1] + (msgRx.Data[2]<<8);
+			readMotorControllerErrorL(error);
+		}
+		/************************************************************/
 
+		/* 		Code to read Core Status from Motorcontrollers 		*/
+		if(msgRx.StdId == MOTORCONTROLLER_LEFT_RX_STDID && msgRx.Data[0] == 0x40)
+		{
+			uint16_t core = msgRx.Data[1] + (msgRx.Data[2]<<8);
+			readMotorControllerCoreL(core);
+			
+		}
+		if(msgRx.StdId == MOTORCONTROLLER_LEFT_RX_STDID && msgRx.Data[0] == 0x40)
+		{
+			
+		}		
+		/************************************************************/		
 	}
 }
