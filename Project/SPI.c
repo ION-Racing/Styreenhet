@@ -2,11 +2,12 @@
 #include <stm32f4xx_spi.h>
 #include <stdio.h>
 #include "SPI.h"
+#include "systick.h"
 
 // http://www.lxtronic.com/index.php/basic-spi-simple-read-write 
 // http://www.mouser.com/pdfdocs/tn92_spi_communication_with_scc1300_rev_11.PDF
 
-void SPI_Configuration(void){
+void InitSPI(void){
 	
 	/*SPI interface setup*/	
 	
@@ -108,4 +109,13 @@ void SPI_WriteData(uint8_t address, uint16_t data){
 	GPIO_SetBits(GPIOB, GPIO_Pin_7);		// Deselect gyrosope
 	//return status;
 
+}
+
+void SPIstartCommunication(void)
+{
+	if(clk800msSPI == COMPLETE) {
+	SPI_ReadData(0x08);
+	SPI_ReadData(0x08);
+	clk800msSPI = RESTART;
+	}
 }

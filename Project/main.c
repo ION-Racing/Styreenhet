@@ -4,6 +4,8 @@
 #include "NVIC.h"
 #include "CAN.h"
 #include "ADC.h"
+#include "SPI.h"
+#include "systick.h"
 
 
 static void Delay(__IO uint32_t);
@@ -12,7 +14,9 @@ CanRxMsg msgRx;
 
 // Data-variabler
 uint16_t pedalSensors[2];
-			
+
+uint16_t gyrodata;
+
 int main(void)
 {
 	// Configure the system clock.
@@ -29,6 +33,8 @@ int main(void)
 	InitNVIC();
 	InitADC();
 	InitCAN();
+	InitSystick();
+	InitSPI();
 //	MCO_Config(); // Clock output
 	
 	
@@ -37,15 +43,26 @@ int main(void)
 	GPIOC->ODR |= GPIO_Pin_8;
 	
 	/* Main code */
+	
+	/* Start communication with AKS/GYRO.
+	Must happen after approximately 800ms
+	after startup*/
+	SPIstartCommunication();
 	while(1)
 	{
 		
-		if(pedalSensors[0] > 0xF){
-			GPIOB->ODR |= GPIO_Pin_14;				
+		if(clk100msSPI == COMPLETE ) 
+		{
+			gyrodata = SPI_ReadData(0x00);
+			clk100msSPI = RESTART;
 		}
-		else {
-			GPIOB->ODR &= ~GPIO_Pin_14;
-		}
+		
+//		if(pedalSensors[0] > 0xF){
+//			GPIOB->ODR |= GPIO_Pin_14;				
+//		}
+//		else {
+//			GPIOB->ODR &= ~GPIO_Pin_14;
+//		}
 		
 	}
 }
