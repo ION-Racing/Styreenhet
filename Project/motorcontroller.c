@@ -2,7 +2,7 @@
 #include "motorcontroller.h"
 
 
-
+uint8_t wheelFrontR, wheelRearR, wheelFrontL, wheelRearL;
 
 /* Simple Torque vectoring routine which only decreases torque on inner wheel and increases torque on outer wheel */
 void torqueVector(uint16_t velocity, uint16_t steering, uint16_t torque) 
@@ -12,18 +12,24 @@ void torqueVector(uint16_t velocity, uint16_t steering, uint16_t torque)
 		if (steering > 0x7FFF>>1)	//Steering right
 		{
 			torqueR = simple_ackerman[velocity][(int)((steering/885)+0.5)]; 
-			if (torqueR > torque) tractionControl(torque, frontR, rearR);
+			if (torqueR > torque) tractionControl(torque, wheelFrontR, wheelRearR);
+			else
+			{
+				torqueL = (torque*2)-torqueR;
+				//torqueR = tractionControl();
+				//tractionControl(torqueL, front, rear);
+			}
 
 		}
 		else										//steering left
 		{
 			torqueL = simple_ackerman[velocity][(int)((steering/442)+0.5)];	 
-			if (torqueL > torque) tractionControl(torqueL, frontL, rearL);
+			if (torqueL > torque) tractionControl(torqueL, wheelFrontL, wheelRearL);
 			else
 			{
 				torqueR = (torque*2)-torqueL;
-				torqueR = tractionControl();
-				tractionControl(innerTorque, front, rear);
+				//torqueR = tractionControl();
+				//tractionControl(torqueL, wheelFrontL, wheelRearL);
 			}
 
 		}

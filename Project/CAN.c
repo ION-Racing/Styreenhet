@@ -3,7 +3,10 @@
 #include "CAN.h"
 #include "ION_CAN.h"
 #include "Bamocar.h"
+#include "motorcontroller.h"
 
+#define MAX_10_PERCENT 	0
+#define MAX_100_PERCENT 3
 
 
 /* PRIVATE functions */
@@ -126,8 +129,13 @@ void CAN1_RX0_IRQHandler (void)
 
 		
 		if(msgRx.StdId == CAN_MSG_PEDAL_VALUES){
-			pedalSensors[0] = msgRx.Data[2];
+			pedalSensors[0] = ((msgRx.Data[0]<<8) + msgRx.Data[1])<< MAX_10_PERCENT;  //throttle -- Change to MAX_100_PERCENT to have full speed
+			pedalSensors[1] = ((msgRx.Data[2]<<8) + msgRx.Data[3])<< MAX_10_PERCENT;	//brake    -- Change to MAX_100_PERCENT to have full speed
 		}
+//		setTorque(pedalSensors[0], 0xFFFF-pedalSensors[0]);		// Change comment if torque command is desired
+		setRPM   (pedalSensors[0], 0xFFFF-pedalSensors[0]);   // Change comment if RPM command is desired
+		/************************************************************/
+		
 		
 		/* 		Code to read error messages from Motorcontrollers 		*/
 		if(msgRx.StdId == MOTORCONTROLLER_RIGHT_RX_STDID && msgRx.Data[0] == 0x8F)
@@ -144,15 +152,16 @@ void CAN1_RX0_IRQHandler (void)
 		/************************************************************/
 
 		/* 		Code to read Core Status from Motorcontrollers 		*/
-		if(msgRx.StdId == MOTORCONTROLLER_LEFT_RX_STDID && msgRx.Data[0] == 0x40)
+		if(msgRx.StdId == MOTORCONTROLLER_RIGHT_RX_STDID && msgRx.Data[0] == 0x40)
 		{
-			uint16_t core = msgRx.Data[1] + (msgRx.Data[2]<<8);
-			readMotorControllerCoreL(core);
-			
+			uint32_t core = msgRx.Data[1] + (msgRx.Data[2]<<8) + (msgRx.Data[3]<<16) + (msgRx.Data[4]<<24);
+			readMotorControllerCoreR(core);	
 		}
+		
 		if(msgRx.StdId == MOTORCONTROLLER_LEFT_RX_STDID && msgRx.Data[0] == 0x40)
 		{
-			
+			uint32_t core = msgRx.Data[1] + (msgRx.Data[2]<<8) + (msgRx.Data[3]<<16) + (msgRx.Data[4]<<24);
+			readMotorControllerCoreL(core);
 		}		
 		/************************************************************/		
 	}
