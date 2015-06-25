@@ -17,7 +17,7 @@ void enableMotorcontrollers(void)
 	{		
 		if (motorControllerRightDisabled){
 			CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, enable); 
-			CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, requestCoreStatus); 	
+			CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, requestCoreStatus); 			//sindre test
 		}
 		if (motorControllerLeftDisabled){
 			CANTx(MOTORCONTROLLER_LEFT_TX_STDID,  3, enable);

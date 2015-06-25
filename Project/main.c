@@ -4,19 +4,11 @@
 #include "NVIC.h"
 #include "CAN.h"
 #include "ADC.h"
-#include "SPI.h"
 
 
 static void Delay(__IO uint32_t);
 CanTxMsg msgTx;	  
 CanRxMsg msgRx;
-
-/*Gyro power-up:
-
-	Wait 800 ms
-	SPI_ReadData(0x00);
-	SPI_ReadData(0x00);
-*/
 
 // Data-variabler
 uint16_t pedalSensors[2];
