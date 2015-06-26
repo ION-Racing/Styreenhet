@@ -428,6 +428,16 @@
               <FileType>1</FileType>
               <FilePath>.\Bamocar.c</FilePath>
             </File>
+            <File>
+              <FileName>Wheelsensor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Wheelsensor.c</FilePath>
+            </File>
+            <File>
+              <FileName>Global_variables.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\Global_variables.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -642,6 +652,16 @@
               <FileName>systick.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\systick.c</FilePath>
+            </File>
+            <File>
+              <FileName>Watchdog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Watchdog.c</FilePath>
+            </File>
+            <File>
+              <FileName>EXTI.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\EXTI.c</FilePath>
             </File>
           </Files>
         </Group>
