@@ -12,8 +12,6 @@
 #define TM_ID_GetUnique32(x)	((x >= 0 && x < 3) ? (*(uint32_t *) (ID_UNIQUE_ADDRESS + 4 * (x))) : 0)
 
 static void Delay(__IO uint32_t);
-CanTxMsg msgTx;	  
-CanRxMsg msgRx;
 
 // Data-variabler
 uint16_t pedalSensors[2];
@@ -22,7 +20,7 @@ uint16_t gyrodata;
 
 int main(void)
 {
-		// Check that you flashed to the correct microcontroller
+	// Check that you flashed to the correct microcontroller
 	uint32_t chipId1 = TM_ID_GetUnique32(0);
 	uint32_t chipId2 = TM_ID_GetUnique32(1);
 	uint32_t chipId3 = TM_ID_GetUnique32(2);
@@ -48,12 +46,9 @@ int main(void)
 	InitSPI();
 //	MCO_Config(); // Clock output
 	
+	// Startup finished LED
+	LED_SetState(LED_GREEN, ENABLE);
 	
-	
-	//Enable a LED to show on status.
-	GPIOC->ODR |= GPIO_Pin_8;
-	
-	/* Main code */
 	
 	/* Start communication with AKS/GYRO.
 	Must happen after approximately 800ms
@@ -68,12 +63,13 @@ int main(void)
 			clk100msSPI = RESTART;
 		}
 		
-//		if(pedalSensors[0] > 0xF){
-//			GPIOB->ODR |= GPIO_Pin_14;				
-//		}
-//		else {
-//			GPIOB->ODR &= ~GPIO_Pin_14;
-//		}
+		// Brakelight
+		if(pedalSensors[1] > 0xFFF / 20){ // Brake > 5%: (1/0.05) = 20
+			GPIOB->ODR |= GPIO_Pin_14;				
+		}
+		else {
+			GPIOB->ODR &= ~GPIO_Pin_14;
+		}
 		
 	}
 }

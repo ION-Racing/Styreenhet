@@ -1,4 +1,5 @@
 #include "stm32f4xx.h"
+#include "GPIO.h"
 
 void InitGPIO(void)
 {
@@ -82,5 +83,30 @@ void InitGPIO(void)
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
+}
+
+
+void LED_SetState(uint8_t led, FunctionalState state){
+	uint32_t pins;
+	switch(led){
+		case LED_GREEN:
+			pins = GPIO_Pin_7;
+			break;
+		case LED_RED:
+			pins = GPIO_Pin_6;
+			break;
+		case LED_BLUE:
+			pins = GPIO_Pin_8;
+			break;
+		default:
+			return;			
+	}
+	
+	if(state == ENABLE){
+		GPIOC->ODR |= pins;
+	}
+	else {
+		GPIOC->ODR &= ~pins;		
+	}
 }
 
