@@ -6,6 +6,7 @@
 #include "ADC.h"
 #include "SPI.h"
 #include "systick.h"
+#include "startup.h"
 
 
 #define ID_UNIQUE_ADDRESS		0x1FFF7A10
@@ -20,6 +21,9 @@ uint16_t gyrodata;
 
 int main(void)
 {
+	
+	
+	
 	// Check that you flashed to the correct microcontroller
 	uint32_t chipId1 = TM_ID_GetUnique32(0);
 	uint32_t chipId2 = TM_ID_GetUnique32(1);
@@ -46,6 +50,7 @@ int main(void)
 	InitSPI();
 //	MCO_Config(); // Clock output
 	
+	startup();
 	// Startup finished LED
 	LED_SetState(LED_GREEN, ENABLE);
 	
@@ -54,6 +59,12 @@ int main(void)
 	Must happen after approximately 800ms
 	after startup*/
 	SPIstartCommunication();
+	
+	if(startup()){
+	 RTDS();
+		mcRun();
+	}
+	
 	while(1)
 	{
 		
@@ -73,8 +84,6 @@ int main(void)
 		
 	}
 }
-
-
 
 //--------------------------------------------------------------------
 /**
