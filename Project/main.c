@@ -6,7 +6,7 @@
 #include "ADC.h"
 #include "SPI.h"
 #include "systick.h"
-#include "startup.h"
+//#include "startup.h"
 
 
 #define ID_UNIQUE_ADDRESS		0x1FFF7A10
@@ -50,7 +50,7 @@ int main(void)
 	InitSPI();
 //	MCO_Config(); // Clock output
 	
-	startup();
+//	startup();
 	// Startup finished LED
 	LED_SetState(LED_GREEN, ENABLE);
 	
@@ -60,10 +60,10 @@ int main(void)
 	after startup*/
 	SPIstartCommunication();
 	
-	if(startup()){
-	 RTDS();
-		mcRun();
-	}
+//	if(startup()){
+//	 RTDS();
+//		mcRun();
+//	}
 	
 	while(1)
 	{
