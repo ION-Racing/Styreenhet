@@ -1,5 +1,7 @@
 #include "stm32f4xx.h"
-#include "Global_variables.h"
+#include "CAN.h"
+#include "ION_CAN.h"
+#include "Global.h"
 
 uint32_t calculateRpm(uint32_t);
 uint32_t frequency;
@@ -14,38 +16,36 @@ Data field 3 & 4 contains wheel sensor 2 data.
 
 
 void TxWheelrpm(CanTxMsg msg)
-	{
-				__disable_irq();
+{
+	__disable_irq();
 
-				//Declare common variables for CAN message.
-				msg.StdId = 0x1;
-				msg.RTR = CAN_RTR_DATA;
-				msg.IDE = CAN_ID_STD;
-				msg.DLC = 4;
-				
-				frequency = calculateRpm(wheel.period1);
-				msg.Data[0] = frequency;
-				msg.Data[1] = frequency>>8;
-				
-				frequency = calculateRpm(wheel.period2);
-				msg.Data[2] = frequency;
-				msg.Data[3] = frequency>>8;
-				
-				CAN_Transmit(CAN1, &msg);
-				wheel.period1 = 0;
-				wheel.period2 = 0;
-				
-				__enable_irq();
-			
-	}
-	/* 
-	@retval 0 if period is 0 otherwise the calculated frequency
-	*/
+	uint8_t data[4];
+
+	frequency = calculateRpm(wheel.period1);
+	data[0] = frequency;
+	data[1] = frequency >> 8;
+
+	frequency = calculateRpm(wheel.period2);
+	data[2] = frequency;
+	data[3] = frequency >> 8;
+
+	CANTx(CAN_MSG_WHEEL_RPM, 4, data);
 	
-	uint32_t calculateRpm(uint32_t period){
-		if(period == 0)
-		{
-			return 0;
-		}else return 1000000/period; // f*1000 = (1/t[us])*1000
+	wheel.period1 = 0;
+	wheel.period2 = 0;
+
+	__enable_irq();
+		
+}
+
+/* 
+@retval 0 if period is 0 otherwise the calculated frequency
+*/
+uint32_t calculateRpm(uint32_t period)
+{
+	if(period == 0){
+		return 0;
 	}
 	
+	return 1000000 / period; // f*1000 = (1/t[us])*1000
+}

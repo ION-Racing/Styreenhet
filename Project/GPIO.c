@@ -85,6 +85,27 @@ void InitGPIO(void)
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 }
 
+// Motorcontroller RUN-signal
+void SetRUN(FunctionalState state)
+{
+	if(state == ENABLE){
+		GPIOB->ODR |= GPIO_Pin_12;
+	}
+	else {
+		GPIOB->ODR &= ~GPIO_Pin_12;		
+	}
+}
+
+// RTDS
+void SetRTDS(FunctionalState state)
+{
+	if(state == ENABLE){
+		GPIOB->ODR |= GPIO_Pin_13;
+	}
+	else {
+		GPIOB->ODR &= ~GPIO_Pin_13;		
+	}
+}
 
 void LED_SetState(uint8_t led, FunctionalState state){
 	uint32_t pins;

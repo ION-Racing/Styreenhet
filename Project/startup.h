@@ -1,9 +1,10 @@
+#ifndef __STARTUP_H
+#define __STARTUP_H
 
-//#ifndef __STARTUP_H
-//#define __STARTUP_H
+uint8_t RTDS(void);
+uint8_t mcRun(void);
+void checkStartup(void);
 
-//uint8_t RTDS(void);
-//uint8_t mcRun(void);
-//uint8_t startup(void);
+void Startup_START_Pushed(void);
 
-//#endif
+#endif

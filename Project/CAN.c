@@ -8,7 +8,7 @@
 #define MAX_10_PERCENT 	0
 #define MAX_100_PERCENT 3
 
-extern uint16_t pedalSensors[2];
+extern uint16_t pedalValues[2];
 
 void InitCAN(void)
 {
@@ -96,12 +96,17 @@ void CAN1_RX0_IRQHandler (void){
 		CAN_Receive(CAN1, CAN_FIFO0, &msgRx);
 
 		
-		if(msgRx.StdId == CAN_MSG_PEDAL_VALUES){
-			pedalSensors[0] = ((msgRx.Data[0]<<8) + msgRx.Data[1])<< MAX_10_PERCENT;  //throttle -- Change to MAX_100_PERCENT to have full speed
-			pedalSensors[1] = ((msgRx.Data[2]<<8) + msgRx.Data[3])<< MAX_10_PERCENT;	//brake    -- Change to MAX_100_PERCENT to have full speed
+		if(msgRx.StdId == CAN_MSG_PEDALS){
+			pedalValues[0] = ((msgRx.Data[0]<<8) + msgRx.Data[1])<< MAX_10_PERCENT;  //throttle -- Change to MAX_100_PERCENT to have full speed
+			pedalValues[1] = ((msgRx.Data[2]<<8) + msgRx.Data[3])<< MAX_10_PERCENT;	//brake    -- Change to MAX_100_PERCENT to have full speed
 		}
-//		setTorque(pedalSensors[0], 0xFFFF-pedalSensors[0]);		// Change comment if torque command is desired
-		setRPM   (pedalSensors[0], 0xFFFF-pedalSensors[0]);   // Change comment if RPM command is desired
+		else if(msgRx.StdId == CAN_MSG_USER_START){
+			Startup_START_Pushed();
+		}
+		
+		
+//		setTorque(pedalValues[0], 0xFFFF-pedalValues[0]);		// Change comment if torque command is desired
+		setRPM   (pedalValues[0], 0xFFFF-pedalValues[0]);   // Change comment if RPM command is desired
 		/************************************************************/
 		
 		

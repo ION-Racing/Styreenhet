@@ -5,9 +5,11 @@
 #include "CAN.h"
 #include "ADC.h"
 #include "SPI.h"
+#include "Gyro.h"
 #include "systick.h"
-//#include "startup.h"
-
+#include "startup.h"
+#include "Global.h"
+#include "Pedals.h"
 
 #define ID_UNIQUE_ADDRESS		0x1FFF7A10
 #define TM_ID_GetUnique32(x)	((x >= 0 && x < 3) ? (*(uint32_t *) (ID_UNIQUE_ADDRESS + 4 * (x))) : 0)
@@ -15,15 +17,11 @@
 static void Delay(__IO uint32_t);
 
 // Data-variabler
-uint16_t pedalSensors[2];
-
-uint16_t gyrodata;
+CarState carState;
+uint16_t pedalValues[2];
 
 int main(void)
 {
-	
-	
-	
 	// Check that you flashed to the correct microcontroller
 	uint32_t chipId1 = TM_ID_GetUnique32(0);
 	uint32_t chipId2 = TM_ID_GetUnique32(1);
@@ -48,17 +46,16 @@ int main(void)
 	InitCAN();
 	InitSystick();
 	InitSPI();
+	
+	InitPedals();
+	InitGyro();
+	
 //	MCO_Config(); // Clock output
 	
-//	startup();
-	// Startup finished LED
+	// Initialization finished LED
 	LED_SetState(LED_GREEN, ENABLE);
 	
 	
-	/* Start communication with AKS/GYRO.
-	Must happen after approximately 800ms
-	after startup*/
-	SPIstartCommunication();
 	
 //	if(startup()){
 //	 RTDS();
@@ -67,21 +64,19 @@ int main(void)
 	
 	while(1)
 	{
-		
-		if(clk100msSPI == COMPLETE ) 
-		{
-			gyrodata = SPI_ReadData(0x00);
-			clk100msSPI = RESTART;
-		}
+		// Update gyro
+		ReadGyro();
 		
 		// Brakelight
-		if(pedalSensors[1] > 0xFFF / 20){ // Brake > 5%: (1/0.05) = 20
+		if(pedalValues[PEDAL_BRAKE] > 0xFFF / 20){ // Brake > 5%: (1/0.05) = 20
 			GPIOB->ODR |= GPIO_Pin_14;				
 		}
 		else {
 			GPIOB->ODR &= ~GPIO_Pin_14;
 		}
 		
+		// Check startup
+		checkStartup();
 	}
 }
 

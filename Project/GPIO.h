@@ -1,5 +1,8 @@
 void InitGPIO(void);
 
+void SetRUN(FunctionalState state);
+void SetRTDS(FunctionalState state);
+
 #define	LED_GREEN	1
 #define	LED_RED		2
 #define	LED_BLUE	3
