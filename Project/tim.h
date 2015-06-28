@@ -1,1 +1,1 @@
-void	InitTim (void);
+void InitTIM (void);

@@ -5,6 +5,7 @@
 #include "CAN.h"
 #include "ADC.h"
 #include "SPI.h"
+#include "TIM.h"
 #include "Gyro.h"
 #include "systick.h"
 #include "startup.h"
@@ -46,6 +47,7 @@ int main(void)
 	InitCAN();
 	InitSystick();
 	InitSPI();
+	InitTIM();
 	
 	InitPedals();
 	InitGyro();
@@ -64,6 +66,8 @@ int main(void)
 	
 	while(1)
 	{
+		TIM8->CCR2++;
+		
 		// Update gyro
 		ReadGyro();
 		
