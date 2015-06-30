@@ -1,8 +1,8 @@
 #include "stm32f4xx.h"
 
-
 #ifndef __MOTORCONTROLLER_H
 #define __MOTORCONTROLLER_H
+
 
 #define GRADIENT_AS 0.0526		// Stigningstallet til antispinnfunksjonen.
 #define MAX_SPIN 115 					// Will allow 15 percent spin

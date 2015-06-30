@@ -3,6 +3,8 @@
 #include "startup.h"
 #include "GPIO.h"
 #include "Global.h"
+#include "Bamocar.h"
+#include "Motor.h"
 
 
 uint16_t RTDS_Time = 0;
@@ -41,8 +43,13 @@ void checkStartup(void){
 	bool brake = pedalValues[PEDAL_BRAKE] > 0xFFF / 2;
 	bool start = START_Pushed == 1;
 	
-	if(carState == DISARMED)
+	if(carState == PRECHARGE){
+		carState = DISARMED; // For now...
+	}
+	else if(carState == DISARMED)
 	{
+		LED_SetState(LED_GREEN, ENABLE);
+		
 		if(brake && start){
 	
 			// Start RTDS
@@ -51,20 +58,34 @@ void checkStartup(void){
 			
 			// Switch state
 			carState = ARMING;
+			LED_SetState(LED_GREEN, DISABLE);
 		}
 	}
 	else if(carState == ARMING){
+		LED_SetState(LED_BLUE, ENABLE);
 		if(RTDS_Time == 0)
 		{
 			// Stop RTDS
 			SetRTDS(DISABLE);
 			
+			// Arm motor
+			writeRegister(MOTOR_RIGHT, 0x51, 0x00, 0x00); // Enable motor
+			readRegisterRequest(MOTOR_RIGHT, 0x51, 0x00);
+			
+			// Set acceleration ramp (500ms)
+			writeRegister16(MOTOR_RIGHT, BAROCAM_REG_ACC_RAMP, 1000);
+			writeRegister16(MOTOR_RIGHT, BAROCAM_REG_DEC_RAMP, 1000);
+			
 			// Arm car
 			carState = ARMED;
+			LED_SetState(LED_BLUE, DISABLE);
 		}
 	}
 	else if(carState == ARMED){
-		carState = DISARMED;
+		
+		testMotor();
+		
+			LED_SetState(LED_RED, ENABLE);
 	}
 	
 	START_Pushed = 0; // TODO: Fix this (interrupts)

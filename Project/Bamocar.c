@@ -4,9 +4,29 @@
 #include "Bamocar.h"
 #include "CAN.h"
 #include "ION_CAN.h"
+#include "motorcontroller.h"
 
 uint8_t motorControllerRightDisabled, motorControllerLeftDisabled;
 static void Delay(__IO uint32_t);
+
+
+FunctionalState motorControllerState = DISABLE;
+
+void setMotorcontrollerState(FunctionalState state){
+	
+	if(motorControllerState == state) return;
+	
+	uint8_t enable[3] = {0x51, 
+						(state == ENABLE ? 0x00 : 0x04), 
+						0x00};
+	
+	
+	
+	CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, enable);
+	CANTx(MOTORCONTROLLER_LEFT_TX_STDID, 3, enable);
+						
+	motorControllerState = state;
+}
 
 void enableMotorcontrollers(void)
 {

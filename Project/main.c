@@ -17,7 +17,7 @@
 static void Delay(__IO uint32_t);
 
 // Data-variabler
-CarState carState;
+CarState carState = PRECHARGE;
 uint16_t pedalValues[2];
 
 int main(void)
@@ -52,18 +52,14 @@ int main(void)
 	
 //	MCO_Config(); // Clock output
 	
-	// Initialization finished LED
-	LED_SetState(LED_GREEN, ENABLE);
-	
-	
-	
-//	if(startup()){
-//	 RTDS();
-//		mcRun();
-//	}
 	
 	while(1)
 	{
+		Delay(0xFFFF);		
+		
+		// Check startup
+		checkStartup();
+		
 		// Update gyro
 		ReadGyro();
 		
@@ -74,9 +70,6 @@ int main(void)
 		else {
 			GPIOB->ODR &= ~GPIO_Pin_14;
 		}
-		
-		// Check startup
-		checkStartup();
 	}
 }
 

@@ -15,7 +15,8 @@ extern wheeld wheel;
 
 // Enum for the cars current state
 typedef enum CarState {
-	DISARMED = 0,
+	PRECHARGE = 0,
+	DISARMED,
 	ARMING,
 	ARMED,
 	CRITICAL_ERROR

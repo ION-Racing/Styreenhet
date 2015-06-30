@@ -432,6 +432,11 @@
               <FileType>1</FileType>
               <FilePath>.\startup.c</FilePath>
             </File>
+            <File>
+              <FileName>Motor.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Motor.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

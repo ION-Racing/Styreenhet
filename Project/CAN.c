@@ -106,7 +106,7 @@ void CAN1_RX0_IRQHandler (void){
 		
 		
 //		setTorque(pedalValues[0], 0xFFFF-pedalValues[0]);		// Change comment if torque command is desired
-		setRPM   (pedalValues[0], 0xFFFF-pedalValues[0]);   // Change comment if RPM command is desired
+//		setRPM   (pedalValues[0], 0xFFFF-pedalValues[0]);   // Change comment if RPM command is desired
 		/************************************************************/
 		
 		
