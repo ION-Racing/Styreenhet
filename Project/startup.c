@@ -5,11 +5,15 @@
 #include "Global.h"
 #include "Bamocar.h"
 #include "Motor.h"
+#include "Pedals.h"
 
 
 uint16_t RTDS_Time = 0;
 
 uint8_t START_Pushed = 0;
+uint8_t STOP_Pushed = 0;
+
+uint8_t Precharge_State = 0;
 
 /*uint8_t RTDS(void){
 	if( calibrateSensors()){
@@ -38,19 +42,30 @@ extern uint16_t pedalValues[2];
 
 void checkStartup(void){
 	
-	//calibrateSensors();
+	// START_Pushed is set by an interrupt, so disable them while we read it
+	__disable_irq();
 	
-	bool brake = pedalValues[PEDAL_BRAKE] > 0xFFF / 2;
-	bool start = START_Pushed == 1;
+	bool brake = getPedalValuef(PEDAL_BRAKE) > 0.05f;
+	bool start = (START_Pushed == 1);
+	bool stop  = (STOP_Pushed == 1);
+	
+	START_Pushed = 0;
+	STOP_Pushed = 0;
+	__enable_irq();
 	
 	if(carState == PRECHARGE){
-		carState = DISARMED; // For now...
+		carState = DISARMED; // TODO: Check precharge state
 	}
 	else if(carState == DISARMED)
 	{
 		LED_SetState(LED_GREEN, ENABLE);
 		
 		if(brake && start){
+			
+			// Check torque-pedal
+			if(getPedalValuef(PEDAL_TORQUE) > 0.0f){
+				return;
+			}
 	
 			// Start RTDS
 			SetRTDS(ENABLE);
@@ -68,13 +83,8 @@ void checkStartup(void){
 			// Stop RTDS
 			SetRTDS(DISABLE);
 			
-			// Arm motor
-			writeRegister(MOTOR_RIGHT, 0x51, 0x00, 0x00); // Enable motor
-			readRegisterRequest(MOTOR_RIGHT, 0x51, 0x00);
-			
-			// Set acceleration ramp (500ms)
-			writeRegister16(MOTOR_RIGHT, BAROCAM_REG_ACC_RAMP, 1000);
-			writeRegister16(MOTOR_RIGHT, BAROCAM_REG_DEC_RAMP, 1000);
+			// Setup motorcontrollers
+			MotorsEnable();
 			
 			// Arm car
 			carState = ARMED;
@@ -83,12 +93,18 @@ void checkStartup(void){
 	}
 	else if(carState == ARMED){
 		
-		testMotor();
+		LED_SetState(LED_RED, ENABLE);
 		
-			LED_SetState(LED_RED, ENABLE);
+		MotorLoop();
+		
+		// Stop-button
+		if(stop){
+			MotorsDisable();
+			
+			carState = DISARMED;
+			LED_SetState(LED_RED, DISABLE);
+		}
 	}
-	
-	START_Pushed = 0; // TODO: Fix this (interrupts)
 	
 	/*if(brems && !stop){
 		
@@ -106,4 +122,8 @@ void checkStartup(void){
 
 void Startup_START_Pushed(void){
 	START_Pushed = 1;
+}
+
+void Startup_STOP_Pushed(void){
+	STOP_Pushed = 1;
 }

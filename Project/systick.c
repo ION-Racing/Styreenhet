@@ -11,6 +11,7 @@ void InitSystick(void) {
 
 volatile uint16_t clk800msSPI = RESTART; 
 volatile uint16_t clk100msSPI = RESTART; 
+volatile uint32_t delay_ms_time = 0;
 
 extern uint16_t RTDS_Time;
 
@@ -31,4 +32,12 @@ void SysTick_Handler(void)
 	// Ready-to-drive-sound
 	if(RTDS_Time > 0)
 		RTDS_Time--;
+	
+	// Delay
+	delay_ms_time--;
+}
+
+void delay_ms(uint32_t time){
+	delay_ms_time = time;
+	while(delay_ms_time > 0);
 }

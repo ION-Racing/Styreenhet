@@ -10,11 +10,10 @@
 #include "startup.h"
 #include "Global.h"
 #include "Pedals.h"
+#include "Motor.h"
 
 #define ID_UNIQUE_ADDRESS		0x1FFF7A10
 #define TM_ID_GetUnique32(x)	((x >= 0 && x < 3) ? (*(uint32_t *) (ID_UNIQUE_ADDRESS + 4 * (x))) : 0)
-
-static void Delay(__IO uint32_t);
 
 // Data-variabler
 CarState carState = PRECHARGE;
@@ -52,33 +51,27 @@ int main(void)
 	
 //	MCO_Config(); // Clock output
 	
-	
 	while(1)
 	{
-		Delay(0xFFFF);		
-		
 		// Check startup
 		checkStartup();
+		
+		if(carState == ARMED){
+			MotorLoop();
+		}
 		
 		// Update gyro
 		ReadGyro();
 		
 		// Brakelight
-		if(pedalValues[PEDAL_BRAKE] > 0xFFF / 20){ // Brake > 5%: (1/0.05) = 20
+		if(getPedalValuef(PEDAL_BRAKE) > 0.05f){
 			GPIOB->ODR |= GPIO_Pin_14;				
 		}
 		else {
 			GPIOB->ODR &= ~GPIO_Pin_14;
 		}
+		
+		delay_ms(1);
+		// This loop should probably run with a constant frequency...
 	}
-}
-
-//--------------------------------------------------------------------
-/**
-  * @brief  Delay
-  * @param  None
-  * @retval None
-  */
-void Delay(__IO uint32_t nCount){
-  while(nCount--){}
 }

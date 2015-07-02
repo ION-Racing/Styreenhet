@@ -10,11 +10,6 @@ void InitPedals(void){
 	
 }
 
-void setPedalValues(uint16_t torque, uint16_t brake){
-	pedalValues[PEDAL_TORQUE] = torque;
-	pedalValues[PEDAL_BRAKE]  = brake;
-}
-
 uint16_t getPedalValue(uint8_t pedal){
 	return pedalValues[pedal];
 }

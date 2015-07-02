@@ -4,11 +4,11 @@
 #include "ION_CAN.h"
 #include "Bamocar.h"
 #include "motorcontroller.h"
-
-#define MAX_10_PERCENT 	0
-#define MAX_100_PERCENT 3
+#include "startup.h"
+#include "Pedals.h"
 
 extern uint16_t pedalValues[2];
+extern uint8_t Precharge_State;
 
 void InitCAN(void)
 {
@@ -95,19 +95,23 @@ void CAN1_RX0_IRQHandler (void){
 	{
 		CAN_Receive(CAN1, CAN_FIFO0, &msgRx);
 
-		
-		if(msgRx.StdId == CAN_MSG_PEDALS){
-			pedalValues[0] = ((msgRx.Data[0]<<8) + msgRx.Data[1])<< MAX_10_PERCENT;  //throttle -- Change to MAX_100_PERCENT to have full speed
-			pedalValues[1] = ((msgRx.Data[2]<<8) + msgRx.Data[3])<< MAX_10_PERCENT;	//brake    -- Change to MAX_100_PERCENT to have full speed
+		if(msgRx.StdId == CAN_MSG_PRECHARGE){
+			Precharge_State = msgRx.Data[0];
 		}
+		
+		else if(msgRx.StdId == CAN_MSG_PEDALS){
+			pedalValues[PEDAL_TORQUE] = (msgRx.Data[0] << 8) + msgRx.Data[1];
+			pedalValues[PEDAL_BRAKE]  = (msgRx.Data[2] << 8) + msgRx.Data[3];
+		}
+		
 		else if(msgRx.StdId == CAN_MSG_USER_START){
 			Startup_START_Pushed();
 		}
+		else if(msgRx.StdId == CAN_MSG_USER_STOP){
+			Startup_STOP_Pushed();
+		}
 		
 		
-//		setTorque(pedalValues[0], 0xFFFF-pedalValues[0]);		// Change comment if torque command is desired
-//		setRPM   (pedalValues[0], 0xFFFF-pedalValues[0]);   // Change comment if RPM command is desired
-		/************************************************************/
 		
 		
 		/* 		Code to read error messages from Motorcontrollers 		*/
