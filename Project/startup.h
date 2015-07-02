@@ -6,5 +6,6 @@ uint8_t mcRun(void);
 void checkStartup(void);
 
 void Startup_START_Pushed(void);
+void Startup_STOP_Pushed(void);
 
 #endif

@@ -14,22 +14,23 @@ Data field 1 & 2 contains wheel sensor 1 data.
 Data field 3 & 4 contains wheel sensor 2 data.
 */
 
+static const uint8_t pulsesPerRevolution = 30;
+static const uint16_t wheelCircumference = 100; // Wheel circumference in cm
 
-void TxWheelrpm(CanTxMsg msg)
+void TxWheelrpm(void)
 {
 	__disable_irq();
 
-	uint8_t data[4];
+	uint32_t fLeft = calculateRpm(wheel.period1);
+	uint32_t fRight = calculateRpm(wheel.period2);
 
-	frequency = calculateRpm(wheel.period1);
-	data[0] = frequency;
-	data[1] = frequency >> 8;
-
-	frequency = calculateRpm(wheel.period2);
-	data[2] = frequency;
-	data[3] = frequency >> 8;
-
-	CANTx(CAN_MSG_WHEEL_RPM, 4, data);
+	// Calculate speed
+	uint32_t rpm = fLeft / pulsesPerRevolution * 60;
+	uint16_t speed = (rpm * wheelCircumference * 3600) / 100000; // Speed in km/h
+	
+	uint8_t data[8] = {speed >> 8, speed & 0xFF};
+	
+	CANTx(CAN_MSG_SPEED, 2, data);
 	
 	wheel.period1 = 0;
 	wheel.period2 = 0;

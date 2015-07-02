@@ -11,6 +11,7 @@
 #include "Global.h"
 #include "Pedals.h"
 #include "Motor.h"
+#include "Wheelsensor.h"
 
 #define ID_UNIQUE_ADDRESS		0x1FFF7A10
 #define TM_ID_GetUnique32(x)	((x >= 0 && x < 3) ? (*(uint32_t *) (ID_UNIQUE_ADDRESS + 4 * (x))) : 0)
@@ -59,6 +60,8 @@ int main(void)
 		if(carState == ARMED){
 			MotorLoop();
 		}
+		
+		TxWheelrpm();
 		
 		// Update gyro
 		ReadGyro();

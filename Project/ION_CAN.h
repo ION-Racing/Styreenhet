@@ -1,4 +1,4 @@
-// ION CAN Messages v5 - 2015-07-02
+// ION CAN Messages v6 - 2015-07-03
 
 #define	CAN_ERR_HV_SHUTDOWN								0x000
 #define	CAN_ERR_IMD										0x001
@@ -26,6 +26,7 @@
 #define	CAN_MSG_USER_START								0x400
 #define	CAN_MSG_USER_STOP								0x401
 #define	CAN_MSG_WHEEL_RPM_FRONT							0x450
+#define	CAN_MSG_SPEED									0x460
 
 #define	CAN_MSG_BMS_PRODUCT								0x620
 #define	CAN_MSG_BMS_REVISION							0x621
@@ -44,12 +45,7 @@
 
 
 
-#define MOTORCONTROLLER_LEFT_RX_STDID 0x181
-#define MOTORCONTROLLER_LEFT_TX_STDID 0x201
-#define MOTORCONTROLLER_RIGHT_RX_STDID 0x182
-#define MOTORCONTROLLER_RIGHT_TX_STDID 0x202
 
-#define	CAN_MSG_WHEEL_RPM					0x400
 
 
 

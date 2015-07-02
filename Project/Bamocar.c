@@ -22,8 +22,8 @@ void setMotorcontrollerState(FunctionalState state){
 	
 	
 	
-	CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, enable);
-	CANTx(MOTORCONTROLLER_LEFT_TX_STDID, 3, enable);
+	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, enable);
+	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, enable);
 						
 	motorControllerState = state;
 }
@@ -36,12 +36,12 @@ void enableMotorcontrollers(void)
 	while (motorControllerRightDisabled && motorControllerLeftDisabled)
 	{		
 		if (motorControllerRightDisabled){
-			CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, enable); 
-			CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, requestCoreStatus); 			//sindre test
+			CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, enable); 
+			CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, requestCoreStatus); 			//sindre test
 		}
 		if (motorControllerLeftDisabled){
-			CANTx(MOTORCONTROLLER_LEFT_TX_STDID,  3, enable);
-			CANTx(MOTORCONTROLLER_LEFT_TX_STDID,  3, requestCoreStatus);
+			CANTx(CAN_MSG_MOTOR_LEFT_TX,  3, enable);
+			CANTx(CAN_MSG_MOTOR_LEFT_TX,  3, requestCoreStatus);
 		}
 	}	
 }
@@ -54,12 +54,12 @@ void disableMotorcontrollers(void)
 	while (!(motorControllerRightDisabled && motorControllerLeftDisabled))
 	{		
 		if (!motorControllerRightDisabled){
-			CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, disable);
-			CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, requestCoreStatus); 			
+			CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, disable);
+			CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, requestCoreStatus); 			
 		}
 		if (!motorControllerLeftDisabled){
-			CANTx(MOTORCONTROLLER_LEFT_TX_STDID,  3, disable);
-			CANTx(MOTORCONTROLLER_LEFT_TX_STDID,  3, requestCoreStatus); 						
+			CANTx(CAN_MSG_MOTOR_LEFT_TX,  3, disable);
+			CANTx(CAN_MSG_MOTOR_LEFT_TX,  3, requestCoreStatus); 						
 		}
 	}
 }
@@ -68,16 +68,16 @@ void setTorque(int16_t hoyre, int16_t venstre)
 {
 	uint8_t torqueR[3] = {0x90, hoyre,   hoyre>>8};
 	uint8_t torqueL[3] = {0x90, venstre, venstre>>8};
-	CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, torqueR);
-	CANTx(MOTORCONTROLLER_LEFT_TX_STDID, 3, torqueL);	
+	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, torqueR);
+	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, torqueL);	
 }
 
 void setRPM(int16_t hoyre, int16_t venstre)
 {
 	uint8_t RPM_R[3] = {0x31, hoyre,   hoyre>>8};
 	uint8_t RPM_L[3] = {0x31, venstre, venstre>>8};
-	CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, RPM_R);
-	CANTx(MOTORCONTROLLER_LEFT_TX_STDID, 3, RPM_L);		
+	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, RPM_R);
+	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, RPM_L);		
 }
 
 uint16_t readRPMSetpointR(void)
@@ -92,27 +92,27 @@ uint16_t readRPMSetpointL(void)
 void readRPMActualR(void)
 {
 	uint8_t requestRPM[3] = {0x3d, 0x30, RPM_INTERVAL_REQUEST};
-	CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, requestRPM);
+	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, requestRPM);
 	
 }
 
 void readRPMActualL(void)
 {
 	uint8_t requestRPM[3] = {0x3d, 0x30, RPM_INTERVAL_REQUEST};
-	CANTx(MOTORCONTROLLER_LEFT_TX_STDID, 3, requestRPM);	
+	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, requestRPM);	
 }
 
 
 uint16_t readTorqueSetpointR(void)
 {
 	uint8_t requestTorqueSetPoint[3] = {0x3d, 0x90, 0x00};
-	CANTx(MOTORCONTROLLER_RIGHT_TX_STDID, 3, requestTorqueSetPoint);	
+	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, requestTorqueSetPoint);	
 }
 
 uint16_t readTorqueSetpointL(void)
 {
 	uint8_t requestTorqueSetPoint[3] = {0x3d, 0x90, 0x00};
-	CANTx(MOTORCONTROLLER_LEFT_TX_STDID, 3, requestTorqueSetPoint);		
+	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, requestTorqueSetPoint);		
 }
 
 
