@@ -1,8 +1,5 @@
 #include "stm32f4xx.h"
 
-#ifndef __MOTORCONTROLLER_H
-#define __MOTORCONTROLLER_H
-
 //uint16_t motorcontrollerError;
 
 void enableMotorcontrollers(void);
@@ -21,4 +18,3 @@ void readMotorControllerErrorR(uint16_t errorMessage);
 void readMotorControllerErrorL(uint16_t errorMessage);
 void readMotorControllerCoreR(uint32_t coreStatus);
 void readMotorControllerCoreL(uint32_t coreStatus);
-#endif
