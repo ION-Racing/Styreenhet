@@ -3,6 +3,7 @@
 #include "CAN.h"
 #include "ION_CAN.h"
 #include "Bamocar.h"
+#include "Motor.h"
 #include "motorcontroller.h"
 #include "startup.h"
 #include "Pedals.h"
@@ -93,17 +94,39 @@ CanRxMsg msgRx;
 void CAN1_RX0_IRQHandler (void){
 	if (CAN1->RF0R & CAN_RF0R_FMP0)
 	{
-		CAN_Receive(CAN1, CAN_FIFO0, &msgRx);
-
+		CAN_Receive(CAN1, CAN_FIFO0, &msgRx);		
+		
+		// Security
 		if(msgRx.StdId == CAN_MSG_PRECHARGE){
 			Precharge_State = msgRx.Data[0];
 		}
 		
+		// Pedals
 		else if(msgRx.StdId == CAN_MSG_PEDALS){
 			pedalValues[PEDAL_TORQUE] = (msgRx.Data[0] << 8) + msgRx.Data[1];
 			pedalValues[PEDAL_BRAKE]  = (msgRx.Data[2] << 8) + msgRx.Data[3];
 		}
 		
+		// Motors
+		else if(msgRx.StdId == CAN_MSG_MOTOR_LEFT_RX || msgRx.StdId == CAN_MSG_MOTOR_RIGHT_RX){
+			
+			uint8_t motorIdx;
+			if(msgRx.StdId == CAN_MSG_MOTOR_LEFT_RX){
+				motorIdx = 0;
+			}
+			else {
+				motorIdx = 1;
+			}
+			
+			uint32_t data = msgRx.Data[1] + (msgRx.Data[2] << 8); // 16-bit (DLC=4)
+			
+			if(msgRx.DLC >= 6)
+				data += (msgRx.Data[3] << 16) + (msgRx.Data[4] << 24); // 32-bit (DLC=6)
+			
+			BamocarRx(motorIdx, msgRx.Data[0], data);
+		}
+		
+		// Dashboard
 		else if(msgRx.StdId == CAN_MSG_USER_START){
 			Startup_START_Pushed();
 		}
@@ -111,6 +134,7 @@ void CAN1_RX0_IRQHandler (void){
 			Startup_STOP_Pushed();
 		}
 		
+		return;
 		
 		
 		

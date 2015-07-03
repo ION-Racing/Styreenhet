@@ -1,19 +1,53 @@
 #include "stm32f4xx.h"
+#include <stdbool.h>
 #include "Motor.h"
 #include "CAN.h"
 #include "ION_CAN.h"
 #include "Pedals.h"
 #include "systick.h"
+#include "startup.h"
 
 void MotorSetRUN(FunctionalState state);
 void MotorSetRPM(uint8_t motor, int16_t rpm);
 
 void readRegisterRequest(uint8_t motor, uint8_t registerAddress, uint8_t interval);
+uint8_t readRegisterBlocking(uint8_t motor, uint8_t registerAddress, uint32_t *data);
+
 void writeRegister(uint8_t motor, uint8_t regAdr, uint8_t data1, uint8_t data2);
 void writeRegister16(uint8_t motor, uint8_t regAdr, uint16_t data);
+void writeRegister32(uint8_t motor, uint8_t regAdr, uint32_t data);
 
 void BamocarTx(uint8_t motor, uint8_t reg, uint8_t length, uint8_t data[4]);
 
+bool preArmReading = false;
+uint32_t preArmRead = 0;
+
+uint8_t MotorsPreArmCheck(void){
+
+	// Read errors
+	uint32_t errors[MOTORS_TOTAL] = {0, 0};
+	//uint8_t readErrors = readRegisterBlocking(MOTOR_BOTH, BAMOCAR_REG_ERROR, errors);
+	uint8_t readErrors = readRegisterBlocking(MOTOR_RIGHT, BAMOCAR_REG_ERROR, errors);
+	if(readErrors != 0){
+		ReportStartupError(STARTUP_ERR_MOTOR_READ);
+		return 1;
+	}
+	
+	// Check errors
+	bool bitError = false;
+	for(uint8_t i = 0; i<MOTORS_TOTAL; i++){
+		for(uint8_t b = 0; b<16; b++){
+			if(((errors[i] >> b) & 0x1) == 1){				
+				ReportStartupError(STARTUP_ERR_MOTOR_READ + 1 + i * 16 + b);
+				bitError = true;
+			}
+		}
+	}
+	if(bitError) return 1;
+	
+	
+	return 0;
+}
 
 void MotorsEnable(void){
 	// Set RUN-signal
@@ -27,8 +61,8 @@ void MotorsEnable(void){
 	readRegisterRequest(MOTOR_BOTH, 0x51, 0x00);
 	
 	// Set acceleration ramp
-	writeRegister16(MOTOR_BOTH, BAROCAM_REG_ACC_RAMP, 1000);
-	writeRegister16(MOTOR_BOTH, BAROCAM_REG_DEC_RAMP, 1000);
+	writeRegister16(MOTOR_BOTH, BAMOCAR_REG_ACC_RAMP, 1000);
+	writeRegister16(MOTOR_BOTH, BAMOCAR_REG_DEC_RAMP, 1000);
 }
 
 void MotorsDisable(void){
@@ -39,12 +73,12 @@ void MotorsDisable(void){
 	MotorSetRPM(MOTOR_BOTH, 0);
 	
 	// Disable motors
-	writeRegister16(MOTOR_BOTH, BAROCAM_REG_MODE, BAROCAM_MODE_ENABLE_OFF); 
+	writeRegister16(MOTOR_BOTH, BAMOCAR_REG_MODE, BAMOCAR_MODE_ENABLE_OFF); 
 }
 
 void MotorLoop(void){
 	
-	int16_t torque = (int16_t)(getPedalValuef(PEDAL_TORQUE) * 200.0f);
+	int16_t torque = (int16_t)(getPedalValuef(PEDAL_TORQUE) * 10000.0f);
 	
 	MotorSetRPM(MOTOR_BOTH, torque);
 }
@@ -58,7 +92,20 @@ void MotorSetRPM(uint8_t motor, int16_t rpm){
 	// We won't allow reverse for now
 	if(rpm < 0) rpm = 0;
 	
-	writeRegister16(motor, BAROCAM_REG_SPEED_CMD, rpm);
+	writeRegister16(motor, BAMOCAR_REG_SPEED_CMD, rpm);
+	
+}
+
+uint8_t blockingReads = 0;
+uint8_t blockingReadAddress = 0;
+uint32_t *blockingReadBuffer = 0;
+
+void BamocarRx(uint8_t motorIdx, uint8_t reg, uint32_t data){
+	
+	if(blockingReads > 0 && blockingReadAddress == reg){
+		*(blockingReadBuffer + motorIdx) = data;
+		blockingReads--;		
+	}
 	
 }
 
@@ -95,6 +142,22 @@ void readRegisterRequest(uint8_t motor, uint8_t registerAddress, uint8_t interva
 	BamocarTx(motor, 0x3D, 2, readData);
 }
 
+uint8_t readRegisterBlocking(uint8_t motor, uint8_t registerAddress, uint32_t *data)
+{
+	blockingReads = (motor == MOTOR_BOTH ? 2 : 1);
+	blockingReadBuffer = data;
+	blockingReadAddress = registerAddress;
+	
+	readRegisterRequest(motor, registerAddress, 0x00);
+	
+	uint32_t timeout = 0x1FFFF; // ~8ms
+	while(blockingReads > 0){
+		if(timeout-- == 0) return 1;
+	}
+	
+	return 0;	
+}
+
 void writeRegister(uint8_t motor, uint8_t regAdr, uint8_t data1, uint8_t data2){
 	uint8_t writeData[4] = {data1, data2};
 	BamocarTx(motor, regAdr, 2, writeData);
@@ -110,34 +173,3 @@ void writeRegister32(uint8_t motor, uint8_t regAdr, uint32_t data){
 	BamocarTx(motor, regAdr, 4, writeData);
 }
 
-int16_t speed = 0;
-
-void testMotor(){
-	
-	/*uint8_t drive_ready[2] = {0xE2, 0x00};
-	BamocarTx(MOTOR_RIGHT, 0x3d, 2, drive_ready); // Read BTB
-	
-	Delay(0x7FFF);
-	
-	uint8_t enable_off[2] = {0x04, 0x00};
-	BamocarTx(MOTOR_RIGHT, 0x51, 2, enable_off); // Set ENABLE OFF Mode bit
-	
-	Delay(0x7FFF);
-	
-	uint8_t read_RUN[2] = {0xE8, 0x00};
-	BamocarTx(MOTOR_RIGHT, 0x3D, 2, read_RUN); // Read RUN state
-	*/
-	
-	//uint8_t enable_on[4] = {0x00, 0x00};
-	//BamocarTx(MOTOR_RIGHT, 0x51, 2, enable_on); // Enable motor (set all mode bits to 0)
-	
-	float pedal = getPedalValuef(PEDAL_TORQUE);
-	uint16_t uns = (uint16_t)(pedal * 2000.0f);
-	speed = (int16_t)uns;
-	
-	writeRegister16(MOTOR_RIGHT, BAROCAM_REG_SPEED_CMD, speed);
-	
-	volatile uint32_t i = 0xFF;
-	while(i-- > 0);
-	
-}

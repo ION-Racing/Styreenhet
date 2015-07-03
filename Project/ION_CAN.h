@@ -1,4 +1,4 @@
-// ION CAN Messages v6 - 2015-07-03
+// ION CAN Messages v7 - 2015-07-03
 
 #define	CAN_ERR_HV_SHUTDOWN								0x000
 #define	CAN_ERR_IMD										0x001
@@ -25,6 +25,7 @@
 
 #define	CAN_MSG_USER_START								0x400
 #define	CAN_MSG_USER_STOP								0x401
+#define	CAN_ERR_STARTUP									0x440
 #define	CAN_MSG_WHEEL_RPM_FRONT							0x450
 #define	CAN_MSG_SPEED									0x460
 
@@ -37,6 +38,7 @@
 #define	CAN_MSG_BMS_CHARGE								0x626
 #define	CAN_MSG_BMS_TEMP								0x627
 #define	CAN_MSG_BMS_RESISTANCE							0x628
+
 
 
 
