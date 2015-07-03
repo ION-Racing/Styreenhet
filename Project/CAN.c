@@ -102,9 +102,8 @@ void CAN1_RX0_IRQHandler (void){
 		}
 		
 		// Pedals
-		else if(msgRx.StdId == CAN_MSG_PEDALS){
-			pedalValues[PEDAL_TORQUE] = (msgRx.Data[0] << 8) + msgRx.Data[1];
-			pedalValues[PEDAL_BRAKE]  = (msgRx.Data[2] << 8) + msgRx.Data[3];
+		else if(msgRx.StdId == CAN_MSG_PEDALS_STEERING){
+			readEncoders((msgRx.Data[0]>>8)+msgRx.Data[1], (msgRx.Data[2]>>8)+msgRx.Data[3], msgRx.Data[4], msgRx.Data[5]);
 		}
 		
 		// Motors

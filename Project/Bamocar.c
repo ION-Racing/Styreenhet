@@ -6,6 +6,9 @@
 #include "ION_CAN.h"
 #include "motorcontroller.h"
 
+
+//#define RIGHT_MOTOR_REVERSE	//Uncomment if Motors are turning wrong way
+
 uint8_t motorControllerRightDisabled, motorControllerLeftDisabled;
 static void Delay(__IO uint32_t);
 
@@ -63,19 +66,33 @@ void disableMotorcontrollers(void)
 		}
 	}
 }
-
+// data[0] is regid, data[1] is torque LSB and data[2] is torque MSB
 void setTorque(int16_t hoyre, int16_t venstre)
 {
-	uint8_t torqueR[3] = {0x90, hoyre,   hoyre>>8};
-	uint8_t torqueL[3] = {0x90, venstre, venstre>>8};
-	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, torqueR);
-	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, torqueL);	
+	#ifdef RIGHT_MOTOR_REVERSE
+	hoyre = 0xFFFF-hoyre;
+	#else
+	venstre = 0xFFFF-venstre;
+	#endif
+	
+	uint8_t torqueRight[3] = {0x90, hoyre & 0xFF,   hoyre>>8};
+	uint8_t torqueLeft[3] = {0x90, venstre & 0xFF, venstre>>8};
+	
+	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, torqueRight);
+	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, torqueLeft);	
 }
 
 void setRPM(int16_t hoyre, int16_t venstre)
 {
-	uint8_t RPM_R[3] = {0x31, hoyre,   hoyre>>8};
-	uint8_t RPM_L[3] = {0x31, venstre, venstre>>8};
+	#ifdef RIGHT_MOTOR_REVERSE
+	hoyre = 0xFFFF-hoyre;
+	#else
+	venstre = 0xFFFF-venstre;
+	#endif
+	
+	uint8_t RPM_R[3] = {0x31, hoyre & 0xFF,   hoyre>>8};
+	uint8_t RPM_L[3] = {0x31, venstre & 0xFF, venstre>>8};
+	
 	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, RPM_R);
 	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, RPM_L);		
 }
@@ -118,6 +135,7 @@ uint16_t readTorqueSetpointL(void)
 
 void readMotorControllerErrorR(uint16_t errorMessage)
 {
+	//need to send array on CAN (for some reason)
 	uint8_t motorcontrollerRIGHT[1] = {MOTORCONTROLLER_RIGHT};
 		
 	for (uint8_t i = 0; i < 16; i++) 

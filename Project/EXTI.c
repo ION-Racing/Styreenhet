@@ -51,7 +51,7 @@ void EXTI9_5_IRQHandler(void)
 		 }
 		 else {																		// Or second trigger..
 			wheel.period1 = TIM2->CNT - wp_temp1;		// Calculate time difference of trigger 1 and 2.
-			wheel.state1 = TRIGGER1;								// Ready or state 1.												
+			wp_temp1 = wheel.period1;								// Ready or state 1.												
 		 }
         EXTI_ClearITPendingBit(EXTI_Line9);
     }
@@ -72,7 +72,8 @@ void EXTI15_10_IRQHandler(void)
 		}
 		else {										// Or second trigger..
 			wheel.period2 = TIM2->CNT - wp_temp2;	// Calculate time difference of trigger 1 and 2.
-			wheel.state2 = TRIGGER1;				// Ready or state 1.												
+			wp_temp2 = wheel.period2;
+			//wheel.state2 = TRIGGER1;				// Ready or state 1.												
 		}
         EXTI_ClearITPendingBit(EXTI_Line10);
     } 
