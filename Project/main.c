@@ -51,7 +51,6 @@ int main(void)
 	InitPedals();
 	InitGyro();
 	
-	uint8_t CANdata[8];
 //	MCO_Config(); // Clock output
 	
 	while(1)
