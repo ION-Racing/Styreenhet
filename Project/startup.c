@@ -6,6 +6,8 @@
 #include "Bamocar.h"
 #include "Motor.h"
 #include "Pedals.h"
+#include "ION_CAN.h"
+#include "CAN.h"
 
 
 uint16_t RTDS_Time = 0;
@@ -46,6 +48,7 @@ void checkStartup(void){
 	__disable_irq();
 	
 	bool brake = getPedalValuef(PEDAL_BRAKE) > 0.05f;
+	brake = true; // TODOTODOTODO! Fixme ;)
 	bool start = (START_Pushed == 1);
 	bool stop  = (STOP_Pushed == 1);
 	
@@ -62,8 +65,21 @@ void checkStartup(void){
 		
 		if(brake && start){
 			
+			/*
+			Når du kobler til to motorkontrollere + bremsepedal:
+			- Fjern brake = true over her
+			- Les begge kontrollere i readErrors i MotorsPreArmCheck
+			*/
+			
 			// Check torque-pedal
 			if(getPedalValuef(PEDAL_TORQUE) > 0.0f){
+				ReportStartupError(STARTUP_ERR_TORQUE);
+				return;
+			}
+			
+			// Motor pre-arm checks
+			uint8_t preArm = MotorsPreArmCheck();
+			if(preArm != 0){
 				return;
 			}
 	
@@ -84,7 +100,10 @@ void checkStartup(void){
 			SetRTDS(DISABLE);
 			
 			// Setup motorcontrollers
-			MotorsEnable();
+			if(MotorsEnable() != 0){
+				carState = DISARMED;
+				return;
+			}
 			
 			// Arm car
 			carState = ARMED;
@@ -118,6 +137,10 @@ void checkStartup(void){
 			}
 		}
 	}	*/
+}
+
+void ReportStartupError(uint8_t errorCode){
+	CANTx(CAN_ERR_STARTUP, 1, &errorCode);
 }
 
 void Startup_START_Pushed(void){

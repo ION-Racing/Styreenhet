@@ -1,4 +1,4 @@
-// ION CAN Messages v6 - 2015-07-03
+// ION CAN Messages v7 - 2015-07-03
 
 #define	CAN_ERR_HV_SHUTDOWN								0x000
 #define	CAN_ERR_IMD										0x001
@@ -18,15 +18,20 @@
 #define	CAN_MSG_MOTOR_RIGHT_TX							0x202
 
 #define	CAN_ERR_PEDALS_IMPLAUSIBILITY					0x300
-#define	CAN_MSG_PEDALS									0x310
+#define	CAN_MSG_PEDALS_STEERING								0x310
 #define	CAN_MSG_STEERING								0x311
 #define	CAN_MSG_PEDALS_CALIBRATE						0x320
 #define	CAN_MSG_PEDALS_CALIBRATION_COMPLETE				0x321
 
 #define	CAN_MSG_USER_START								0x400
 #define	CAN_MSG_USER_STOP								0x401
+#define	CAN_ERR_STARTUP									0x440
 #define	CAN_MSG_WHEEL_RPM_FRONT							0x450
 #define	CAN_MSG_SPEED									0x460
+
+#define CAN_MSG_WHEEL_RPM_FRONT 0x450	
+#define CAN_MSG_WHEEL_RPM_REAR 0x451	
+
 
 #define	CAN_MSG_BMS_PRODUCT								0x620
 #define	CAN_MSG_BMS_REVISION							0x621
@@ -37,6 +42,7 @@
 #define	CAN_MSG_BMS_CHARGE								0x626
 #define	CAN_MSG_BMS_TEMP								0x627
 #define	CAN_MSG_BMS_RESISTANCE							0x628
+
 
 
 

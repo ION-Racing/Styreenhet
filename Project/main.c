@@ -12,6 +12,7 @@
 #include "Pedals.h"
 #include "Motor.h"
 #include "Wheelsensor.h"
+#include "motorcontroller.h"
 
 #define ID_UNIQUE_ADDRESS		0x1FFF7A10
 #define TM_ID_GetUnique32(x)	((x >= 0 && x < 3) ? (*(uint32_t *) (ID_UNIQUE_ADDRESS + 4 * (x))) : 0)
@@ -54,27 +55,44 @@ int main(void)
 	
 	while(1)
 	{
-		// Check startup
-		checkStartup();
-		
-		if(carState == ARMED){
-			MotorLoop();
+		/*
+		// Read from CAN ringbuffer - TODO (SINDRE): add and correct names
+		if (ringBufferNotEmpty) canMsg = fetchCANRxMsg();
+		{
+			if (canMsg.id == CAN_MSG_WHEEL_RPM_FRONT) 
+			{
+				readRPM(1, (canMsg.data[0]>>8)+canMsg.data[1], canMsg.data[2]>>8)+canMsg.data[3]);
+			}
+			
+			if (canMsg.id == CAN_MSG_PEDALS_STEERING)
+			{
+				readEncoders(canMsg.data[0]>>8)+canMsg.data[1], canMsg.data[2]>>8)+canMsg.data[3], canMsg.data[4], canMsg.data[5]);
+			}
+			
 		}
-		
-		TxWheelrpm();
-		
-		// Update gyro
-		ReadGyro();
-		
-		// Brakelight
-		if(getPedalValuef(PEDAL_BRAKE) > 0.05f){
-			GPIOB->ODR |= GPIO_Pin_14;				
-		}
-		else {
-			GPIOB->ODR &= ~GPIO_Pin_14;
-		}
-		
-		delay_ms(1);
-		// This loop should probably run with a constant frequency...
+		*/		
+
+	// Check startup
+	checkStartup();
+	
+	if(carState == ARMED){
+		MotorLoop();
+	}
+	
+	TxWheelrpm();
+	
+	// Update gyro
+	ReadGyro();
+	
+	// Brakelight
+	if(getPedalValuef(PEDAL_BRAKE) > 0.05f){
+		GPIOB->ODR |= GPIO_Pin_14;				
+	}
+	else {
+		GPIOB->ODR &= ~GPIO_Pin_14;
+	}
+	
+	delay_ms(1);
+	// This loop should probably run with a constant frequency...
 	}
 }
