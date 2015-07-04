@@ -100,7 +100,10 @@ void checkStartup(void){
 			SetRTDS(DISABLE);
 			
 			// Setup motorcontrollers
-			MotorsEnable();
+			if(MotorsEnable() != 0){
+				carState = DISARMED;
+				return;
+			}
 			
 			// Arm car
 			carState = ARMED;

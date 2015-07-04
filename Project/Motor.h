@@ -8,8 +8,13 @@
 #define	BAMOCAR_REG_ACC_RAMP		0x35
 #define	BAMOCAR_REG_DEC_RAMP		0xED
 #define	BAMOCAR_REG_SPEED_CMD		0x31
+#define	BAMOCAR_REG_TORQUE_CMD		0x90
+#define	BAMOCAR_REG_STATE			0x40
 #define	BAMOCAR_REG_MODE			0x51
 #define	BAMOCAR_REG_ERROR			0x8F
+
+// BAMOCAR_REG_STATE
+#define	BAMOCAR_STATE_RDY			(1<<14)
 
 // BAMOCAR_REG_MODE
 #define	BAMOCAR_MODE_ENABLE_OFF		0x04
@@ -35,7 +40,7 @@
 
 uint8_t MotorsPreArmCheck(void);
 
-void MotorsEnable(void);
+uint8_t MotorsEnable(void);
 void MotorsDisable(void);
 
 void MotorLoop(void);

@@ -43,26 +43,58 @@ uint8_t MotorsPreArmCheck(void){
 			}
 		}
 	}
-	if(bitError) return 1;
+	//if(bitError) return 1;
 	
+	// Check state
+	uint32_t state[MOTORS_TOTAL] = {0, 0};
+	uint8_t readState = readRegisterBlocking(MOTOR_RIGHT, BAMOCAR_REG_STATE, state);
+	if(readState != 0){
+		ReportStartupError(STARTUP_ERR_MOTOR_READ);
+		return 1;
+	}
+	
+	for(uint8_t i = 0; i<MOTORS_TOTAL; i++){		
+		// Check BTB/RDY
+		if(!(state[i] & BAMOCAR_STATE_RDY)){
+			ReportStartupError(STARTUP_ERR_MOTOR_RDY_LEFT + i);
+			return 1;
+		}
+	}
 	
 	return 0;
 }
 
-void MotorsEnable(void){
+uint8_t MotorsEnable(void)
+{
 	// Set RUN-signal
 	MotorSetRUN(ENABLE);
 	
 	// Wait 5ms
 	delay_ms(5);
 	
-	// Set motorcontroller options
-	writeRegister(MOTOR_BOTH, 0x51, 0x00, 0x00); // Enable motor
-	readRegisterRequest(MOTOR_BOTH, 0x51, 0x00);
+	// Enable motorcontroller
+	writeRegister16(MOTOR_BOTH, BAMOCAR_REG_MODE, 0x0000); // Unset ENABLE OFF
+	
+	// Check enable
+	uint32_t modes[MOTORS_TOTAL] = {0, 0};
+	uint8_t readMode = readRegisterBlocking(MOTOR_RIGHT, BAMOCAR_REG_MODE, modes);
+	if(readMode != 0)
+		return 1;
+	
+	for(uint8_t i = 0; i<MOTORS_TOTAL; i++){
+		if((modes[i] & BAMOCAR_MODE_ENABLE_OFF) != 0){
+			// Enable failed
+			ReportStartupError(STARTUP_ERR_MOTOR_ENABLE_LEFT + i);
+			MotorsDisable();
+			return 1;
+		}			
+	}
 	
 	// Set acceleration ramp
 	writeRegister16(MOTOR_BOTH, BAMOCAR_REG_ACC_RAMP, 1000);
 	writeRegister16(MOTOR_BOTH, BAMOCAR_REG_DEC_RAMP, 1000);
+	
+	return 0;
 }
 
 void MotorsDisable(void){
@@ -83,17 +115,20 @@ void MotorLoop(void){
 	MotorSetRPM(MOTOR_BOTH, torque);
 }
 
-void MotorSetRPM(uint8_t motor, int16_t rpm){
-	
-	/*float pedal = getPedalValuef(PEDAL_TORQUE);
-	uint16_t uns = (uint16_t)(pedal * 2000.0);
-	speed = (int16_t)uns;*/
-	
+void MotorSetRPM(uint8_t motor, int16_t rpm)
+{	
 	// We won't allow reverse for now
 	if(rpm < 0) rpm = 0;
 	
 	writeRegister16(motor, BAMOCAR_REG_SPEED_CMD, rpm);
+}
+
+void MotorSetTorque(uint8_t motor, int16_t torque)
+{
+	// Don't allow negative torque (for now)
+	if(torque < 0) torque = 0;
 	
+	writeRegister16(motor, BAMOCAR_REG_TORQUE_CMD, torque);
 }
 
 uint8_t blockingReads = 0;
