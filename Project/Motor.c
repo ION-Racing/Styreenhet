@@ -43,7 +43,7 @@ uint8_t MotorsPreArmCheck(void){
 			}
 		}
 	}
-	//if(bitError) return 1;
+	if(bitError) return 1;
 	
 	// Check state
 	uint32_t state[MOTORS_TOTAL] = {0, 0};

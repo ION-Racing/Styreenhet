@@ -131,38 +131,6 @@ void CAN1_RX0_IRQHandler (void){
 		}
 		else if(msgRx.StdId == CAN_MSG_USER_STOP){
 			Startup_STOP_Pushed();
-		}
-		
-		return;
-		
-		
-		
-		/* 		Code to read error messages from Motorcontrollers 		*/
-		if(msgRx.StdId == CAN_MSG_MOTOR_RIGHT_RX && msgRx.Data[0] == 0x8F)
-		{
-			uint16_t error = msgRx.Data[1] + (msgRx.Data[2]<<8);
-			readMotorControllerErrorR(error);
-		}		
-		
-		if(msgRx.StdId == CAN_MSG_MOTOR_LEFT_RX && msgRx.Data[0] == 0x8F)
-		{
-			uint16_t error = msgRx.Data[1] + (msgRx.Data[2]<<8);
-			readMotorControllerErrorL(error);
-		}
-		/************************************************************/
-
-		/* 		Code to read Core Status from Motorcontrollers 		*/
-		if(msgRx.StdId == CAN_MSG_MOTOR_RIGHT_RX && msgRx.Data[0] == 0x40)
-		{
-			uint32_t core = msgRx.Data[1] + (msgRx.Data[2]<<8) + (msgRx.Data[3]<<16) + (msgRx.Data[4]<<24);
-			readMotorControllerCoreR(core);	
-		}
-		
-		if(msgRx.StdId == CAN_MSG_MOTOR_LEFT_RX && msgRx.Data[0] == 0x40)
-		{
-			uint32_t core = msgRx.Data[1] + (msgRx.Data[2]<<8) + (msgRx.Data[3]<<16) + (msgRx.Data[4]<<24);
-			readMotorControllerCoreL(core);
-		}		
-		/************************************************************/		
+		}	
 	}
 }

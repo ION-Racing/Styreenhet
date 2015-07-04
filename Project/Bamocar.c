@@ -97,15 +97,7 @@ void setRPM(int16_t hoyre, int16_t venstre)
 	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, RPM_L);		
 }
 
-uint16_t readRPMSetpointR(void)
-{
-	
-}
 
-uint16_t readRPMSetpointL(void)
-{
-	
-}
 void readRPMActualR(void)
 {
 	uint8_t requestRPM[3] = {0x3d, 0x30, RPM_INTERVAL_REQUEST};
@@ -118,20 +110,6 @@ void readRPMActualL(void)
 	uint8_t requestRPM[3] = {0x3d, 0x30, RPM_INTERVAL_REQUEST};
 	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, requestRPM);	
 }
-
-
-uint16_t readTorqueSetpointR(void)
-{
-	uint8_t requestTorqueSetPoint[3] = {0x3d, 0x90, 0x00};
-	CANTx(CAN_MSG_MOTOR_RIGHT_TX, 3, requestTorqueSetPoint);	
-}
-
-uint16_t readTorqueSetpointL(void)
-{
-	uint8_t requestTorqueSetPoint[3] = {0x3d, 0x90, 0x00};
-	CANTx(CAN_MSG_MOTOR_LEFT_TX, 3, requestTorqueSetPoint);		
-}
-
 
 void readMotorControllerErrorR(uint16_t errorMessage)
 {

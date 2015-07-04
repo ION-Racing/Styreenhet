@@ -161,13 +161,11 @@ void DMA2_Stream0_IRQHandler(void)
 			rawSensorValues[i] = rawSensorValues[i]>>1;
 		}
 
-		
-		
-		uint8_t i;
+		/*uint8_t i;
 		uint8_t data[8];
 		for(i = 0; i<7; i++){
 			data[i] = (uint8_t)(rawSensorValues[i] >> 7);
-		}
+		}*/
 				
 		//movingAverage(ADCDualConvertedValues);
 	}
