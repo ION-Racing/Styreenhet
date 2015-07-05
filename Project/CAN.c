@@ -105,6 +105,10 @@ void CAN1_RX0_IRQHandler (void){
 		else if(msgRx.StdId == CAN_MSG_PEDALS_STEERING){
 			readEncoders((msgRx.Data[0]>>8)+msgRx.Data[1], (msgRx.Data[2]>>8)+msgRx.Data[3], msgRx.Data[4], msgRx.Data[5]);
 		}
+		else if(msgRx.StdId == CAN_ERR_PEDALS_IMPLAUSIBILITY){
+			// Pedal implausibility, cut power to motors (EV2.3.5)
+			MotorsDisable();
+		}
 		
 		// Motors
 		else if(msgRx.StdId == CAN_MSG_MOTOR_LEFT_RX || msgRx.StdId == CAN_MSG_MOTOR_RIGHT_RX){
