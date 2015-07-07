@@ -80,7 +80,7 @@ void checkStartup(void){
 			// Motor pre-arm checks
 			uint8_t preArm = MotorsPreArmCheck();
 			if(preArm != 0){
-				return;
+			//	return;
 			}
 	
 			// Start RTDS

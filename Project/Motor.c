@@ -26,8 +26,7 @@ uint8_t MotorsPreArmCheck(void){
 
 	// Read errors
 	uint32_t errors[MOTORS_TOTAL] = {0, 0};
-	//uint8_t readErrors = readRegisterBlocking(MOTOR_BOTH, BAMOCAR_REG_ERROR, errors);
-	uint8_t readErrors = readRegisterBlocking(MOTOR_RIGHT, BAMOCAR_REG_ERROR, errors);
+	uint8_t readErrors = readRegisterBlocking(MOTOR_BOTH, BAMOCAR_REG_ERROR, errors);
 	if(readErrors != 0){
 		ReportStartupError(STARTUP_ERR_MOTOR_READ);
 		return 1;
@@ -47,7 +46,7 @@ uint8_t MotorsPreArmCheck(void){
 	
 	// Check state
 	uint32_t state[MOTORS_TOTAL] = {0, 0};
-	uint8_t readState = readRegisterBlocking(MOTOR_RIGHT, BAMOCAR_REG_STATE, state);
+	uint8_t readState = readRegisterBlocking(MOTOR_BOTH, BAMOCAR_REG_STATE, state);
 	if(readState != 0){
 		ReportStartupError(STARTUP_ERR_MOTOR_READ);
 		return 1;
@@ -77,7 +76,7 @@ uint8_t MotorsEnable(void)
 	
 	// Check enable
 	uint32_t modes[MOTORS_TOTAL] = {0, 0};
-	uint8_t readMode = readRegisterBlocking(MOTOR_RIGHT, BAMOCAR_REG_MODE, modes);
+	uint8_t readMode = readRegisterBlocking(MOTOR_LEFT, BAMOCAR_REG_MODE, modes);
 	if(readMode != 0)
 		return 1;
 	
@@ -110,7 +109,7 @@ void MotorsDisable(void){
 
 void MotorLoop(void){
 	
-	int16_t torque = (int16_t)(getPedalValuef(PEDAL_TORQUE) * 10000.0f);
+	int16_t torque = (int16_t)(getPedalValuef(PEDAL_TORQUE) * 16000.0f);
 	
 	MotorSetRPM(MOTOR_BOTH, torque);
 }

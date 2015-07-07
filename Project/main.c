@@ -55,6 +55,7 @@ int main(void)
 	
 	while(1)
 	{
+		
 		/*
 		// Read from CAN ringbuffer - TODO (SINDRE): add and correct names
 		if (ringBufferNotEmpty) canMsg = fetchCANRxMsg();

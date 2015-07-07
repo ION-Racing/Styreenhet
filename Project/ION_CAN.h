@@ -12,9 +12,9 @@
 #define	CAN_MSG_LV_SENSOR								0x015
 #define	CAN_MSG_POWER									0x016
 
-#define	CAN_MSG_MOTOR_LEFT_RX							0x181
+#define	CAN_MSG_MOTOR_LEFT_RX							0x190
 #define	CAN_MSG_MOTOR_RIGHT_RX							0x182
-#define	CAN_MSG_MOTOR_LEFT_TX							0x201
+#define	CAN_MSG_MOTOR_LEFT_TX							0x210
 #define	CAN_MSG_MOTOR_RIGHT_TX							0x202
 
 #define	CAN_ERR_PEDALS_IMPLAUSIBILITY					0x300
