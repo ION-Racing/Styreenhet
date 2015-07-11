@@ -19,7 +19,8 @@ typedef enum CarState {
 	DISARMED,
 	ARMING,
 	ARMED,
-	CRITICAL_ERROR
+	CRITICAL_ERROR,
+	BSPD
 } CarState;
 
 extern CarState carState;

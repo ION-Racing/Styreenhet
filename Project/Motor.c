@@ -6,6 +6,7 @@
 #include "Pedals.h"
 #include "systick.h"
 #include "startup.h"
+#include "Global.h"
 
 void MotorSetRUN(FunctionalState state);
 void MotorSetRPM(uint8_t motor, int16_t rpm);
@@ -21,6 +22,8 @@ void BamocarTx(uint8_t motor, uint8_t reg, uint8_t length, uint8_t data[4]);
 
 bool preArmReading = false;
 uint32_t preArmRead = 0;
+
+extern CarState carState;
 
 uint8_t MotorsPreArmCheck(void){
 
@@ -109,7 +112,18 @@ void MotorsDisable(void){
 
 void MotorLoop(void){
 	
-	int16_t torque = (int16_t)(getPedalValuef(PEDAL_TORQUE) * 16000.0f);
+	float torqueF = getPedalValuef(PEDAL_TORQUE);
+	float brakeF = getPedalValuef(PEDAL_BRAKE);
+	
+	// BPSD
+	if(torqueF >= 0.25f && brakeF >= 0.25f){
+		carState = BSPD;
+		MotorSetRPM(MOTOR_BOTH, 0); // TODO: Verify write
+		ReportStartupError(MOTOR_ERR_BSPD);
+		return;
+	}
+	
+	int16_t torque = (int16_t)(torqueF * 16000.0f);
 	
 	MotorSetRPM(MOTOR_BOTH, torque);
 }

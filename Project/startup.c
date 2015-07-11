@@ -124,6 +124,23 @@ void checkStartup(void){
 			LED_SetState(LED_RED, DISABLE);
 		}
 	}
+	else if(carState == BSPD){
+		
+		LED_SetState(LED_RED, ENABLE);
+		LED_SetState(LED_BLUE, ENABLE);
+		
+		float torqueF = getPedalValuef(PEDAL_TORQUE);
+		
+		// BPSD
+		if(torqueF < 0.05f){
+			carState = ARMED;
+			LED_SetState(LED_BLUE, DISABLE);
+		}
+		else {
+			MotorSetRPM(MOTOR_BOTH, 0);	
+		}
+		
+	}
 	
 	/*if(brems && !stop){
 		
