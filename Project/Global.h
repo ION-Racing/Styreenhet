@@ -30,3 +30,6 @@ extern CarState carState;
 #define	PEDAL_BRAKE		1
 
 extern uint16_t pedalValues[2];
+
+
+//#define	CALIBRATE_MC	true

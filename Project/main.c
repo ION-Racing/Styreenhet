@@ -51,6 +51,8 @@ int main(void)
 	InitPedals();
 	InitGyro();
 	
+	MotorSetRUN(DISABLE);
+	
 //	MCO_Config(); // Clock output
 	
 	while(1)
@@ -92,6 +94,10 @@ int main(void)
 	else {
 		GPIOB->ODR &= ~GPIO_Pin_14;
 	}
+	
+	
+	//testLoop();
+	
 	
 	delay_ms(1);
 	// This loop should probably run with a constant frequency...

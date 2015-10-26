@@ -48,9 +48,10 @@ void checkStartup(void){
 	__disable_irq();
 	
 	bool brake = getPedalValuef(PEDAL_BRAKE) > 0.05f;
-	brake = true; // TODOTODOTODO! Fixme ;)
 	bool start = (START_Pushed == 1);
 	bool stop  = (STOP_Pushed == 1);
+	
+	brake = true; // TODO: FIXME!!!
 	
 	START_Pushed = 0;
 	STOP_Pushed = 0;
@@ -77,11 +78,22 @@ void checkStartup(void){
 				return;
 			}
 			
+			
+			LED_SetState(LED_GREEN, DISABLE);
+			
 			// Motor pre-arm checks
 			uint8_t preArm = MotorsPreArmCheck();
 			if(preArm != 0){
-			//	return;
+				#ifndef CALIBRATE_MC
+				#warning NOT_CALIBRATING
+				//return;
+				#else 
+				#warning CALIBRATING				
+				#endif
+				// Kalibrering
 			}
+			
+			LED_SetState(LED_GREEN, ENABLE);
 	
 			// Start RTDS
 			SetRTDS(ENABLE);
@@ -99,6 +111,8 @@ void checkStartup(void){
 			// Stop RTDS
 			SetRTDS(DISABLE);
 			
+			LED_SetState(LED_BLUE, DISABLE);
+			
 			// Setup motorcontrollers
 			if(MotorsEnable() != 0){
 				carState = DISARMED;
@@ -107,14 +121,16 @@ void checkStartup(void){
 			
 			// Arm car
 			carState = ARMED;
-			LED_SetState(LED_BLUE, DISABLE);
 		}
 	}
 	else if(carState == ARMED){
 		
 		LED_SetState(LED_RED, ENABLE);
 		
+		// Kalibrering
+		#ifndef CALIBRATE_MC
 		MotorLoop();
+		#endif
 		
 		// Stop-button
 		if(stop){

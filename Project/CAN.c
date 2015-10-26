@@ -7,6 +7,7 @@
 #include "motorcontroller.h"
 #include "startup.h"
 #include "Pedals.h"
+#include "Global.h"
 
 extern uint16_t pedalValues[2];
 extern uint8_t Precharge_State;
@@ -90,6 +91,8 @@ uint8_t CANTx(uint32_t address, uint8_t length, uint8_t data[8]) {
 /* CAN Receive */
 CanRxMsg msgRx;
 
+//extern CarState carState;
+
 // CAN RX Interrupt
 void CAN1_RX0_IRQHandler (void){
 	if (CAN1->RF0R & CAN_RF0R_FMP0)
@@ -111,7 +114,9 @@ void CAN1_RX0_IRQHandler (void){
 		}
 		else if(msgRx.StdId == CAN_ERR_PEDALS_IMPLAUSIBILITY){
 			// Pedal implausibility, cut power to motors (EV2.3.5)
+			Startup_STOP_Pushed();
 			MotorsDisable();
+			carState = DISARMED;
 		}
 		
 		// Motors

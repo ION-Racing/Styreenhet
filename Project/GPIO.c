@@ -31,6 +31,13 @@ void InitGPIO(void)
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 	
+	// PB12	Run (pullup)
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+	
+	//GPIOB->ODR = GPIO_Pin_12;
+	
 	/*
 		Gyro
 		--------------
